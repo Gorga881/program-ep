@@ -36,17 +36,14 @@
         .qr-scanner {
             margin-top: 10px;
         }
-        #interactive {
+        #reader {
             width: 100%;
             height: 200px;
             border: 1px solid #ccc;
             margin-top: 10px;
         }
-        #barcodeFeedback {
-            color: red;
-        }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsqr.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
 </head>
 <body>
     <h2>List Program Potongan Harga Bulan Oktober 2024</h2>
@@ -99,8 +96,8 @@
 
         <label for="qrCode">Scan QR Code:</label>
         <input type="text" id="qrCode" name="qrCode" placeholder="Scan QR Code program" required class="qr-scanner" readonly>
-        <div id="barcodeFeedback"></div>
-        <div id="interactive"></div>
+        <div id="qrCodeFeedback" style="color: red;"></div>
+        <div id="reader" class="qr-scanner"></div>
         <button type="button" onclick="startScanner()">Mulai Pemindaian QR Code</button>
 
         <input type="submit" value="Kirim">
@@ -154,52 +151,36 @@
             }
 
             // Populate new options
-            options.forEach(function(opt) {
-                var option = document.createElement("option");
-                option.value = opt;
-                option.textContent = opt;
-                codeMobiiSelect.add(option);
+            options.forEach(function(option) {
+                var opt = document.createElement("option");
+                opt.value = option;
+                opt.text = option;
+                codeMobiiSelect.appendChild(opt);
             });
         });
 
         function startScanner() {
-            const video = document.createElement('video');
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
-            const interactive = document.getElementById('interactive');
-            interactive.innerHTML = ''; // Clear previous content
-            interactive.appendChild(video);
-
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-                .then(stream => {
-                    video.srcObject = stream;
-                    video.setAttribute('playsinline', true); // Required to tell iOS to use inline
-                    video.play();
-                    requestAnimationFrame(tick);
-                })
-                .catch(err => {
-                    console.error("Unable to access the camera: ", err);
-                });
-
-            function tick() {
-                if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                    canvas.height = video.videoHeight;
-                    canvas.width = video.videoWidth;
-                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                    const code = jsQR(imageData.data, canvas.width, canvas.height);
-
-                    if (code) {
-                        document.getElementById("qrCode").value = code.data;
-                        document.getElementById("barcodeFeedback").innerText = "QR code berhasil dibaca: " + code.data;
-                        video.srcObject.getTracks().forEach(track => track.stop()); // Stop the video stream
-                        return; // Exit the function
-                    } else {
-                        document.getElementById("barcodeFeedback").innerText = "QR code tidak terdeteksi. Silakan coba lagi.";
-                    }
+            const html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start(
+                { facingMode: "environment" }, // Use the back camera
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 }
+                },
+                (decodedText) => {
+                    document.getElementById("qrCode").value = decodedText;
+                    html5QrCode.stop().then(ignore => {
+                        console.log("QR Code scanning stopped.");
+                    }).catch(err => {
+                        console.error("Failed to stop scanning.", err);
+                    });
+                },
+                (errorMessage) => {
+                    // Handle errors
                 }
-                requestAnimationFrame(tick);
-            }
+            ).catch(err => {
+                console.error("Failed to start scanning.", err);
+            });
         }
     </script>
 </body>
