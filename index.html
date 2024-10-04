@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Potongan Harga</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            max-width: 600px;
+            background-color: #f9f9f9;
+        }
+        label {
+            margin-top: 10px;
+            display: block;
+        }
+        select, input[type="submit"], input[type="text"] {
+            margin-top: 5px;
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        input[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #218838;
+        }
+        .barcode-scanner {
+            margin-top: 10px;
+        }
+        #interactive {
+            width: 100%;
+            height: 200px;
+            border: 1px solid #ccc;
+            margin-top: 10px;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+</head>
+<body>
+    <h2>List Program Potongan Harga Bulan Oktober 2024</h2>
+    <form id="potonganForm">
+        <label for="microCluster">Micro Cluster:</label>
+        <select id="microCluster" name="microCluster" required>
+            <option value="" disabled selected>Pilih Micro Cluster</option>
+            <option value="MC-BANJARBARU">MC-BANJARBARU</option>
+            <option value="MC-BARABAI">MC-BARABAI</option>
+            <option value="MC-KANDANGAN">MC-KANDANGAN</option>
+            <option value="MC-BANJARMASIN">MC-BANJARMASIN</option>
+            <option value="MC-BARITO KUALA">MC-BARITO KUALA</option>
+            <option value="MC-BATULICIN">MC-BATULICIN</option>
+            <option value="MC-PELAIHARI">MC-PELAIHARI</option>
+            <option value="MC-KAPUAS">MC-KAPUAS</option>
+            <option value="MC-MUARA TEWEH">MC-MUARA TEWEH</option>
+            <option value="MC-PALANGKARAYA">MC-PALANGKARAYA</option>
+            <option value="MC-BERAU">MC-BERAU</option>
+            <option value="MC-TARAKAN">MC-TARAKAN</option>
+        </select>
+
+        <label for="codeMobii">Code Mobii:</label>
+        <select id="codeMobii" name="codeMobii" required>
+            <option value="" disabled selected>Pilih Code Mobii</option>
+            <!-- Options will be populated based on Micro Cluster selection -->
+        </select>
+
+        <label for="produkProgram">Produk Program:</label>
+        <select id="produkProgram" name="produkProgram" required>
+            <option value="" disabled selected>Pilih Produk Program</option>
+            <option value="SP IM3 3GB">SP IM3 3GB</option>
+            <option value="SP IM3 6GB">SP IM3 6GB</option>
+            <option value="SP IM3 9GB">SP IM3 9GB</option>
+        </select>
+
+        <label for="jumlah">Jumlah:</label>
+        <select id="jumlah" name="jumlah" required>
+            <option value="" disabled selected>Pilih Jumlah</option>
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="40">40</option>
+            <option value="50">50</option>
+            <option value="60">60</option>
+            <option value="70">70</option>
+            <option value="80">80</option>
+            <option value="90">90</option>
+            <option value="100">100</option>
+        </select>
+
+        <label for="barcode">Scan Barcode:</label>
+        <input type="text" id="barcode" name="barcode" placeholder="Scan barcode program" required class="barcode-scanner" readonly>
+        <div id="barcodeFeedback" style="color: red;"></div>
+        <div id="interactive"></div>
+        <button type="button" onclick="startScanner()">Mulai Pemindaian Barcode</button>
+
+        <input type="submit" value="Kirim">
+    </form>
+
+    <script>
+        document.getElementById("microCluster").addEventListener("change", function() {
+            var codeMobiiSelect = document.getElementById("codeMobii");
+            codeMobiiSelect.innerHTML = ""; // Clear previous options
+
+            var microCluster = this.value;
+            var options = [];
+
+            switch (microCluster) {
+                case "MC-BANJARBARU":
+                    options = ["CSOMCMTP1", "CSOMCMTP11", "CSOMCMTP2", "CSOMCMTP4", "CSOMCMTP5", "CSOMCMTP6"];
+                    break;
+                case "MC-BARABAI":
+                    options = ["CSOMCBRB1", "CSOMCBRB2", "CSOMCBRB3", "CSOMCBRB4", "CSOMCTJG5"];
+                    break;
+                case "MC-KANDANGAN":
+                    options = ["CSOMCBRB10", "CSOMCBRB5", "CSOMCBRB7", "CSOMCBRB8", "CSOMCBRB9"];
+                    break;
+                case "MC-BANJARMASIN":
+                    options = ["BJMGADGETAYA", "CSOB-BJM06", "CSOB-BJM-07", "CSOB-BJM1", "CSOB-BJM2", "CSOB-BJM4", "CSOB-BJM5", "CSOB-MTP2", "EXP-BJB01", "MCBJMAGUSTSANI", "MCBJMARIESPRAS", "MCBJMBAHRUDIN", "MCBJMBAMBANG", "MCBJMHENDRY", "MTPABANGBAIM"];
+                    break;
+                case "MC-BARITO KUALA":
+                    options = ["CSOB-BJM3", "MCBJMAHMAD", "MCBJMANWARIFUADI", "MCBJMBAKERAN", "MCBJMFAHRULRAZI"];
+                    break;
+                case "MC-BATULICIN":
+                    options = ["CSOB-BTL04", "CSOB-BTL2", "CSOB-BTL7", "CSOB-BTL8", "JUMADINFARHAN02", "RUSDIANSYAHBTL"];
+                    break;
+                case "MC-PELAIHARI":
+                    options = ["ANWARI", "CSOB-BTL5", "EXP-BJB02", "MC-PLH1", "MURNIMUSTAFA1", "REZASATRIAHARDI"];
+                    break;
+                case "MC-KAPUAS":
+                    options = ["ALFIKPS", "HERMANKPS1", "HERYKPS", "KPS01", "KPS02", "KPS03", "SUWANDIKPS1"];
+                    break;
+                case "MC-MUARA TEWEH":
+                    options = ["PKY01", "TEWEH-AVANDI", "TEWEH-HUSAINI", "TEWEH-IJLANNAIS", "TEWEH-MURNI", "TEWEH-RUDIYANI", "TEWH-PAJRIANSYAH", "TWH02"];
+                    break;
+                case "MC-PALANGKARAYA":
+                    options = ["PLK-CSO01", "PLK-DAVID", "PLK-EDYLESMANA", "PLK-ISMAJAYA", "PLK-RAFIAL", "PLK-RENO", "PLK-RISKYNOVA", "PLK-RIZALI", "PLK-SURIYANI"];
+                    break;
+                case "MC-BERAU":
+                    options = ["ANGGIKHARISMA", "ARDIPRATAMA", "CSO-BERAU01", "DEDIALFIAN1", "JHODYSYAHARUDDIN"];
+                    break;
+                case "MC-TARAKAN":
+                    options = ["CSO-TARAKAN-03", "TRK-BUDI", "TRK-NURSALAM", "TRK-TEGUH"];
+                    break;
+            }
+
+            // Populate new options
+            options.forEach(function(option) {
+                var opt = document.createElement("option");
+                opt.value = option;
+                opt.text = option;
+                codeMobiiSelect.appendChild(opt);
+            });
+        });
+
+        function startScanner() {
+            Quagga.init({
+                inputStream: {
+                    name: "Live",
+                    type: "LiveStream",
+                    target: document.getElementById("interactive"),
+                },
+                decoder: {
+                    readers: ["code_128_reader"] // Set barcode type
+                }
+            }, function(err) {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+                Quagga.start();
+            });
+
+            Quagga.onDetected(function(data) {
+                var code = data.codeResult.code;
+                document.getElementById("barcode").value = code;
+                document.getElementById("barcodeFeedback").textContent = "Barcode berhasil dipindai: " + code;
+                Quagga.stop(); // Stop the scanner after reading the barcode
+            });
+        }
+
+        // Form submission handler
+        document.getElementById("potonganForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent actual submission for demo purposes
+            alert("Form berhasil dikirim!"); // Replace with your form submission logic
+        });
+    </script>
+</body>
+</html>
