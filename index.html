@@ -43,7 +43,7 @@
             margin-top: 10px;
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsqr.min.js"></script>
 </head>
 <body>
     <h2>List Program Potongan Harga Bulan Oktober 2024</h2>
@@ -94,11 +94,11 @@
             <option value="100">100</option>
         </select>
 
-        <label for="barcode">Scan Barcode:</label>
-        <input type="text" id="barcode" name="barcode" placeholder="Scan barcode program" required class="barcode-scanner" readonly>
+        <label for="barcode">Scan QR Code:</label>
+        <input type="text" id="barcode" name="barcode" placeholder="Scan QR code program" required class="barcode-scanner" readonly>
         <div id="barcodeFeedback" style="color: red;"></div>
         <div id="interactive"></div>
-        <button type="button" onclick="startScanner()">Mulai Pemindaian Barcode</button>
+        <button type="button" onclick="startScanner()">Mulai Pemindaian QR Code</button>
 
         <input type="submit" value="Kirim">
     </form>
@@ -155,41 +155,46 @@
                 var opt = document.createElement("option");
                 opt.value = option;
                 opt.text = option;
-                codeMobiiSelect.appendChild(opt);
+                codeMobiiSelect.add(opt);
             });
         });
 
         function startScanner() {
-            Quagga.init({
-                inputStream: {
-                    name: "Live",
-                    type: "LiveStream",
-                    target: document.getElementById("interactive"),
-                },
-                decoder: {
-                    readers: ["code_128_reader"] // Set barcode type
-                }
-            }, function(err) {
-                if (err) {
-                    console.log(err);
-                    return;
-                }
-                Quagga.start();
-            });
+            const video = document.createElement('video');
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            const interactive = document.getElementById('interactive');
+            interactive.innerHTML = ''; // Clear previous content
+            interactive.appendChild(video);
 
-            Quagga.onDetected(function(data) {
-                var code = data.codeResult.code;
-                document.getElementById("barcode").value = code;
-                document.getElementById("barcodeFeedback").textContent = "Barcode berhasil dipindai: " + code;
-                Quagga.stop(); // Stop the scanner after reading the barcode
-            });
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+                .then(stream => {
+                    video.srcObject = stream;
+                    video.setAttribute('playsinline', true); // Required to tell iOS to use inline
+                    video.play();
+                    requestAnimationFrame(tick);
+                });
+
+            function tick() {
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    canvas.height = video.videoHeight;
+                    canvas.width = video.videoWidth;
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, canvas.width, canvas.height);
+
+                    if (code) {
+                        document.getElementById("barcode").value = code.data;
+                        document.getElementById("barcodeFeedback").innerText = "";
+                        video.srcObject.getTracks().forEach(track => track.stop()); // Stop the video stream
+                        return; // Exit the function
+                    } else {
+                        document.getElementById("barcodeFeedback").innerText = "QR code tidak terdeteksi. Silakan coba lagi.";
+                    }
+                }
+                requestAnimationFrame(tick);
+            }
         }
-
-        // Form submission handler
-        document.getElementById("potonganForm").addEventListener("submit", function(event) {
-            event.preventDefault(); // Prevent actual submission for demo purposes
-            alert("Form berhasil dikirim!"); // Replace with your form submission logic
-        });
     </script>
 </body>
 </html>
