@@ -4,72 +4,136 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Form with Dynamic Fields</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #b3d9ff; /* Latar biru muda */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h2 {
+            background-color: #003366; /* Biru gelap */
+            color: white;
+            padding: 10px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+            margin: -20px -20px 20px -20px;
+            font-weight: bold;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #003366; /* Biru gelap */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0052cc; /* Biru yang sedikit lebih terang */
+        }
+
+        @media (max-width: 600px) {
+            .form-container {
+                padding: 10px;
+            }
+
+            h2 {
+                font-size: 18px;
+            }
+        }
+    </style>
 </head>
 <body>
 
-<h2>Form</h2>
+<div class="form-container">
+    <h2>Formulir Pengisian Data</h2>
+    <form id="dynamicForm">
+        <!-- Pertanyaan 1: Micro Cluster -->
+        <label for="microCluster">Micro Cluster:</label>
+        <select id="microCluster" name="microCluster" onchange="updateCodeDSE()">
+            <option value="">-- Pilih Micro Cluster --</option>
+            <option value="MC-BANJARBARU">MC-BANJARBARU</option>
+            <option value="MC-BARABAI">MC-BARABAI</option>
+            <option value="MC-KANDANGAN">MC-KANDANGAN</option>
+            <option value="MC-BANJARMASIN">MC-BANJARMASIN</option>
+            <option value="MC-BARITO KUALA">MC-BARITO KUALA</option>
+            <option value="MC-BATULICIN">MC-BATULICIN</option>
+            <option value="MC-PELAIHARI">MC-PELAIHARI</option>
+            <option value="MC-KAPUAS">MC-KAPUAS</option>
+            <option value="MC-MUARA TEWEH">MC-MUARA TEWEH</option>
+            <option value="MC-PALANGKARAYA">MC-PALANGKARAYA</option>
+            <option value="MC-BERAU">MC-BERAU</option>
+            <option value="MC-TARAKAN">MC-TARAKAN</option>
+        </select>
 
-<form id="dynamicForm">
-    <!-- Pertanyaan 1: Micro Cluster -->
-    <label for="microCluster">Micro Cluster:</label>
-    <select id="microCluster" name="microCluster" onchange="updateCodeDSE()">
-        <option value="">-- Pilih Micro Cluster --</option>
-        <option value="MC-BANJARBARU">MC-BANJARBARU</option>
-        <option value="MC-BARABAI">MC-BARABAI</option>
-        <option value="MC-KANDANGAN">MC-KANDANGAN</option>
-        <option value="MC-BANJARMASIN">MC-BANJARMASIN</option>
-        <option value="MC-BARITO KUALA">MC-BARITO KUALA</option>
-        <option value="MC-BATULICIN">MC-BATULICIN</option>
-        <option value="MC-PELAIHARI">MC-PELAIHARI</option>
-        <option value="MC-KAPUAS">MC-KAPUAS</option>
-        <option value="MC-MUARA TEWEH">MC-MUARA TEWEH</option>
-        <option value="MC-PALANGKARAYA">MC-PALANGKARAYA</option>
-        <option value="MC-BERAU">MC-BERAU</option>
-        <option value="MC-TARAKAN">MC-TARAKAN</option>
-    </select>
-    <br><br>
+        <!-- Pertanyaan 2: Code DSE -->
+        <label for="codeDSE">Code DSE (ID Mobii):</label>
+        <select id="codeDSE" name="codeDSE">
+            <option value="">-- Pilih Code DSE --</option>
+        </select>
 
-    <!-- Pertanyaan 2: Code DSE -->
-    <label for="codeDSE">Code DSE (ID Mobii):</label>
-    <select id="codeDSE" name="codeDSE">
-        <option value="">-- Pilih Code DSE --</option>
-    </select>
-    <br><br>
+        <!-- Pertanyaan 3: ID Outlet -->
+        <label for="idOutlet">ID Outlet:</label>
+        <input type="number" id="idOutlet" name="idOutlet" min="1">
 
-    <!-- Pertanyaan 3: ID Outlet -->
-    <label for="idOutlet">ID Outlet:</label>
-    <input type="number" id="idOutlet" name="idOutlet" min="1">
-    <br><br>
+        <!-- Pertanyaan 4: Jumlah SP -->
+        <label for="jumlahSP">Jumlah SP:</label>
+        <select id="jumlahSP" name="jumlahSP" onchange="generateSPList()">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="40">40</option>
+            <option value="50">50</option>
+        </select>
 
-    <!-- Pertanyaan 4: Jumlah SP -->
-    <label for="jumlahSP">Jumlah SP:</label>
-    <select id="jumlahSP" name="jumlahSP" onchange="generateSPList()">
-        <option value="10">10</option>
-        <option value="20">20</option>
-        <option value="30">30</option>
-        <option value="40">40</option>
-        <option value="50">50</option>
-    </select>
-    <br><br>
+        <!-- Pertanyaan 5: Jenis SP -->
+        <label for="jenisSP">Jenis SP:</label>
+        <select id="jenisSP" name="jenisSP">
+            <option value="SP IM3 GB">SP IM3 GB</option>
+            <option value="SP IM3 6GB">SP IM3 6GB</option>
+            <option value="SP IM3 9GB">SP IM3 9GB</option>
+        </select>
 
-    <!-- Pertanyaan 5: Jenis SP -->
-    <label for="jenisSP">Jenis SP:</label>
-    <select id="jenisSP" name="jenisSP">
-        <option value="SP IM3 GB">SP IM3 GB</option>
-        <option value="SP IM3 6GB">SP IM3 6GB</option>
-        <option value="SP IM3 9GB">SP IM3 9GB</option>
-    </select>
-    <br><br>
+        <!-- Pertanyaan 6: List SP -->
+        <div id="spListContainer">
+            <label>List SP (Scan QR Code):</label>
+            <div id="spList"></div>
+        </div>
 
-    <!-- Pertanyaan 6: List SP -->
-    <div id="spListContainer">
-        <label>List SP (Scan QR Code):</label>
-        <div id="spList"></div>
-    </div>
-
-    <br>
-    <button type="submit">Submit</button>
-</form>
+        <button type="submit">Submit</button>
+    </form>
+</div>
 
 <script>
     const dseOptions = {
