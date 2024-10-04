@@ -68,6 +68,7 @@
             width: 100%;
             height: 300px;
             margin-bottom: 20px;
+            display: none; /* Sembunyikan QR reader awalnya */
         }
 
         #spListContainer label {
@@ -143,8 +144,8 @@
             <div id="spList"></div>
         </div>
 
-        <div id="qrReader" style="display:none;"></div>
-        <button type="button" id="startScanButton" onclick="startScan()">Mulai Scan QR Code</button>
+        <div id="qrReader"></div>
+        <button type="button" onclick="startScan()">Mulai Scan QR Code</button>
 
         <button type="submit">Submit</button>
     </form>
@@ -155,76 +156,80 @@
         "MC-BANJARBARU": ["CSOMCMTP1", "CSOMCMTP11", "CSOMCMTP2", "CSOMCMTP4", "CSOMCMTP5", "CSOMCMTP6"],
         "MC-BARABAI": ["CSOMCBRB1", "CSOMCBRB2", "CSOMCBRB3", "CSOMCBRB4", "CSOMCTJG5"],
         "MC-KANDANGAN": ["CSOMCBRB10", "CSOMCBRB5", "CSOMCBRB7", "CSOMCBRB8", "CSOMCBRB9"],
-        "MC-BANJARMASIN": ["BJMGADGETAYA", "CSOB-BJM06", "CSOB-BJM-07", "CSOB-BJM1", "CSOB-BJM2", "CSOB-BJM4", "CSOB-BJM5", "CSOB-MTP2", "EXP-BJB01", "MCBJMAGUSTSANI", "MCBJMARIESPRAS", "MCBJMBAHRUDIN", "MCBJMBAMBANG", "MCBJMHENDRY", "MTPABANGBAIM"],
-        "MC-BARITO KUALA": ["CSOB-BJM3", "MCBJMAHMAD", "MCBJMANWARIFUADI", "MCBJMBAKERAN", "MCBJMFAHRULRAZI"],
-        "MC-BATULICIN": ["CSOB-BTL04", "CSOB-BTL2", "CSOB-BTL7", "CSOB-BTL8", "JUMADINFARHAN02", "RUSDIANSYAHBTL"],
-        "MC-PELAIHARI": ["ANWARI", "CSOB-BTL5", "EXP-BJB02", "MC-PLH1", "MURNIMUSTAFA1", "REZASATRIAHARDI"],
-        "MC-KAPUAS": ["ALFIKPS", "HERMANKPS1", "HERYKPS", "KPS01", "KPS02", "KPS03", "SUWANDIKPS1"],
-        "MC-MUARA TEWEH": ["PKY01", "TEWEH-AVANDI", "TEWEH-HUSAINI", "TEWEH-IJLANNAIS", "TEWEH-MURNI", "TEWEH-RUDIYANI", "TWH02"],
-        "MC-PALANGKARAYA": ["PLK-CSO01", "PLK-DAVID", "PLK-EDYLESMANA", "PLK-ISMAJAYA", "PLK-RAFIAL", "PLK-RENO", "PLK-RISKYNOVA", "PLK-RIZALI", "PLK-SURIYANI"],
-        "MC-BERAU": ["ANGGIKHARISMA", "ARDIPRATAMA", "CSO-BERAU01", "DEDIALFIAN1", "JHODYSYAHARUDDIN"],
-        "MC-TARAKAN": ["CSO-TARAKAN-03", "TRK-BUDI", "TRK-NURSALAM", "TRK-TEGUH"]
+        "MC-BANJARMASIN": ["BJMGADGETAYA", "CSOB-BJM06", "CSOB-BJM-07", "CSOB-BJM1", "CSOB-BJM2", "CSOB-BJM4", "CSOB-BJM5", "CSOB-MTP2", "EXP-BJB01", "MCBJMAGUSTSANI", "MCBJMARIESPRAS", "MCBJMBAHRUDIN", "MCBJMBAMBANG", "MCBJMHENDRY", "MTPABANGBAIM", "MTPBERDIKA", "MTPDIBUKAS", "MTPEKAS", "MTPSOMOS"]
+        // Tambahkan lebih banyak micro cluster dan code DSE sesuai kebutuhan
     };
 
     function updateCodeDSE() {
-        const microCluster = document.getElementById("microCluster").value;
-        const codeDSE = document.getElementById("codeDSE");
-        codeDSE.innerHTML = "";
+        const microClusterSelect = document.getElementById("microCluster");
+        const codeDSESelect = document.getElementById("codeDSE");
+        const selectedMC = microClusterSelect.value;
 
-        if (dseOptions[microCluster]) {
-            dseOptions[microCluster].forEach(code => {
+        // Kosongkan dan tambahkan option baru
+        codeDSESelect.innerHTML = '<option value="">-- Pilih Code DSE --</option>';
+        if (selectedMC && dseOptions[selectedMC]) {
+            dseOptions[selectedMC].forEach(code => {
                 const option = document.createElement("option");
                 option.value = code;
-                option.text = code;
-                codeDSE.appendChild(option);
+                option.textContent = code;
+                codeDSESelect.appendChild(option);
             });
         }
     }
 
     function generateSPList() {
-        const jumlahSP = parseInt(document.getElementById("jumlahSP").value);
-        const spList = document.getElementById("spList");
-        spList.innerHTML = "";
+        const jumlahSP = document.getElementById("jumlahSP").value;
+        const spListContainer = document.getElementById("spList");
+        spListContainer.innerHTML = ""; // Kosongkan daftar sebelumnya
 
         for (let i = 1; i <= jumlahSP; i++) {
             const label = document.createElement("label");
-            label.textContent = `Scan QR Code SP ${i}:`;
+            label.textContent = `SP ${i}:`;
             const input = document.createElement("input");
             input.type = "text";
-            input.name = `sp${i}`;
             input.id = `sp${i}`;
-            input.placeholder = `Hasil Scan QR ${i}`;
-            spList.appendChild(label);
-            spList.appendChild(input);
-            spList.appendChild(document.createElement("br"));
+            input.disabled = true; // Disabled until scanned
+            spListContainer.appendChild(label);
+            spListContainer.appendChild(input);
         }
-        document.getElementById("qrReader").style.display = "block";
     }
 
+    let scanCount = 0;
+    let totalScans = 0;
+    
     function startScan() {
-        const jumlahSP = parseInt(document.getElementById("jumlahSP").value);
-        let scanCount = 0;
+        const jumlahSP = document.getElementById("jumlahSP").value;
+        totalScans = parseInt(jumlahSP);
+        scanCount = 0; // Reset scan count
+        const qrReader = document.getElementById("qrReader");
+        qrReader.style.display = "block"; // Show QR reader
 
-        function onScanSuccess(decodedText, decodedResult) {
-            if (scanCount < jumlahSP) {
+        const html5QrCode = new Html5Qrcode("qrReader");
+        html5QrCode.start(
+            { facingMode: "environment" }, // Use the back camera
+            {
+                fps: 10, // Frame per second
+                qrbox: 250 // Size of the QR code box
+            },
+            (decodedText, decodedResult) => {
+                console.log(`Decoded text: ${decodedText}`, decodedResult);
+                document.getElementById(`sp${scanCount + 1}`).value = decodedText;
                 scanCount++;
-                document.getElementById(`sp${scanCount}`).value = decodedText;
-                if (scanCount === jumlahSP) {
-                    html5QrcodeScanner.clear(); // Stop scanning
-                    alert("Semua QR Code telah di-scan.");
+                if (scanCount >= totalScans) {
+                    html5QrCode.stop().then(() => {
+                        qrReader.style.display = "none"; // Hide QR reader after scans
+                        alert("Scanning selesai!");
+                    }).catch(err => {
+                        console.error("Error stopping the QR scanner", err);
+                    });
                 }
-            }
-        }
-
-        const html5QrcodeScanner = new Html5Qrcode("qrReader");
-        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-
-        html5QrcodeScanner.start(
-            { facingMode: "environment" }, config, onScanSuccess)
-            .catch(err => {
-                console.error("Kesalahan dalam memulai pemindaian: ", err);
-                alert("Gagal membuka kamera. Pastikan izin kamera diberikan.");
-            });
+            },
+            (errorMessage) => {
+                console.warn(`QR Code not detected: ${errorMessage}`);
+            })
+        .catch(err => {
+            console.error("Failed to start QR Code scanner", err);
+        });
     }
 </script>
 
