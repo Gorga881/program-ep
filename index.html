@@ -33,7 +33,7 @@
         input[type="submit"]:hover {
             background-color: #218838;
         }
-        .barcode-scanner {
+        .qr-scanner {
             margin-top: 10px;
         }
         #interactive {
@@ -41,6 +41,9 @@
             height: 200px;
             border: 1px solid #ccc;
             margin-top: 10px;
+        }
+        #barcodeFeedback {
+            color: red;
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsqr.min.js"></script>
@@ -94,9 +97,9 @@
             <option value="100">100</option>
         </select>
 
-        <label for="barcode">Scan QR Code:</label>
-        <input type="text" id="barcode" name="barcode" placeholder="Scan QR code program" required class="barcode-scanner" readonly>
-        <div id="barcodeFeedback" style="color: red;"></div>
+        <label for="qrCode">Scan QR Code:</label>
+        <input type="text" id="qrCode" name="qrCode" placeholder="Scan QR Code program" required class="qr-scanner" readonly>
+        <div id="barcodeFeedback"></div>
         <div id="interactive"></div>
         <button type="button" onclick="startScanner()">Mulai Pemindaian QR Code</button>
 
@@ -151,11 +154,11 @@
             }
 
             // Populate new options
-            options.forEach(function(option) {
-                var opt = document.createElement("option");
-                opt.value = option;
-                opt.text = option;
-                codeMobiiSelect.add(opt);
+            options.forEach(function(opt) {
+                var option = document.createElement("option");
+                option.value = opt;
+                option.textContent = opt;
+                codeMobiiSelect.add(option);
             });
         });
 
@@ -173,6 +176,9 @@
                     video.setAttribute('playsinline', true); // Required to tell iOS to use inline
                     video.play();
                     requestAnimationFrame(tick);
+                })
+                .catch(err => {
+                    console.error("Unable to access the camera: ", err);
                 });
 
             function tick() {
@@ -184,8 +190,8 @@
                     const code = jsQR(imageData.data, canvas.width, canvas.height);
 
                     if (code) {
-                        document.getElementById("barcode").value = code.data;
-                        document.getElementById("barcodeFeedback").innerText = "";
+                        document.getElementById("qrCode").value = code.data;
+                        document.getElementById("barcodeFeedback").innerText = "QR code berhasil dibaca: " + code.data;
                         video.srcObject.getTracks().forEach(track => track.stop()); // Stop the video stream
                         return; // Exit the function
                     } else {
