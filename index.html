@@ -42,9 +42,6 @@
             border: 1px solid #ccc;
             margin-top: 10px;
         }
-        .barcode-scanner {
-            margin-top: 10px;
-        }
     </style>
     <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
 </head>
@@ -103,12 +100,6 @@
         <div id="reader" class="qr-scanner"></div>
         <button type="button" onclick="startScanner()">Mulai Pemindaian QR Code</button>
 
-        <label for="barcode">Scan Barcode:</label>
-        <input type="text" id="barcode" name="barcode" placeholder="Scan Barcode produk" required class="barcode-scanner" readonly>
-        <div id="barcodeFeedback" style="color: red;"></div>
-        <div id="barcodeReader" class="barcode-scanner"></div>
-        <button type="button" onclick="startBarcodeScanner()">Mulai Pemindaian Barcode</button>
-
         <input type="submit" value="Kirim">
     </form>
 
@@ -152,4 +143,45 @@
                     options = ["PLK-CSO01", "PLK-DAVID", "PLK-EDYLESMANA", "PLK-ISMAJAYA", "PLK-RAFIAL", "PLK-RENO", "PLK-RISKYNOVA", "PLK-RIZALI", "PLK-SURIYANI"];
                     break;
                 case "MC-BERAU":
-                    options = ["ANGGIKHARISMA", "ARDIPRATAMA", "CS
+                    options = ["ANGGIKHARISMA", "ARDIPRATAMA", "CSO-BERAU01", "DEDIALFIAN1", "JHODYSYAHARUDDIN"];
+                    break;
+                case "MC-TARAKAN":
+                    options = ["CSO-TARAKAN-03", "TRK-BUDI", "TRK-NURSALAM", "TRK-TEGUH"];
+                    break;
+            }
+
+            // Populate new options
+            options.forEach(function(option) {
+                var opt = document.createElement("option");
+                opt.value = option;
+                opt.text = option;
+                codeMobiiSelect.appendChild(opt);
+            });
+        });
+
+        function startScanner() {
+            const html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start(
+                { facingMode: "environment" }, // Use the back camera
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 }
+                },
+                (decodedText) => {
+                    document.getElementById("qrCode").value = decodedText;
+                    html5QrCode.stop().then(ignore => {
+                        console.log("QR Code scanning stopped.");
+                    }).catch(err => {
+                        console.error("Failed to stop scanning.", err);
+                    });
+                },
+                (errorMessage) => {
+                    // Handle errors
+                }
+            ).catch(err => {
+                console.error("Failed to start scanning.", err);
+            });
+        }
+    </script>
+</body>
+</html>
