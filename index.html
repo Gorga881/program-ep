@@ -68,7 +68,6 @@
             width: 100%;
             height: 300px;
             margin-bottom: 20px;
-            display: none; /* Awalnya disembunyikan */
         }
 
         #spListContainer label {
@@ -85,18 +84,13 @@
                 font-size: 18px;
             }
         }
-
-        .error {
-            color: red;
-            display: none; /* Awalnya disembunyikan */
-        }
     </style>
 </head>
 <body>
 
 <div class="form-container">
     <h2>Formulir Pengisian Data</h2>
-    <form id="dynamicForm" onsubmit="return validateForm()">
+    <form id="dynamicForm">
         <!-- Pertanyaan 1: Micro Cluster -->
         <label for="microCluster">Micro Cluster:</label>
         <select id="microCluster" name="microCluster" onchange="updateCodeDSE()">
@@ -123,8 +117,7 @@
 
         <!-- Pertanyaan 3: ID Outlet -->
         <label for="idOutlet">ID Outlet:</label>
-        <input type="number" id="idOutlet" name="idOutlet" min="1">
-        <div class="error" id="idOutletError">ID Outlet harus diisi dengan angka positif.</div>
+        <input type="number" id="idOutlet" name="idOutlet" min="1" required>
 
         <!-- Pertanyaan 4: Jumlah SP -->
         <label for="jumlahSP">Jumlah SP:</label>
@@ -150,7 +143,7 @@
             <div id="spList"></div>
         </div>
 
-        <div id="qrReader"></div>
+        <div id="qrReader" style="display:none;"></div>
         <button type="button" onclick="startScan()">Mulai Scan QR Code</button>
 
         <button type="submit">Submit</button>
@@ -205,23 +198,18 @@
             spList.appendChild(input);
             spList.appendChild(document.createElement("br"));
         }
-        document.getElementById("qrReader").style.display = "block"; // Tampilkan area QR Reader
+        document.getElementById("qrReader").style.display = "block";
     }
 
     function startScan() {
         const jumlahSP = parseInt(document.getElementById("jumlahSP").value);
-        if (jumlahSP <= 0) {
-            alert("Pilih jumlah SP terlebih dahulu.");
-            return;
-        }
-        
-        let scanCount = 1;
+        let scanCount = 0;
 
         function onScanSuccess(decodedText, decodedResult) {
-            if (scanCount <= jumlahSP) {
-                document.getElementById(`sp${scanCount}`).value = decodedText;
+            if (scanCount < jumlahSP) {
                 scanCount++;
-                if (scanCount > jumlahSP) {
+                document.getElementById(`sp${scanCount}`).value = decodedText;
+                if (scanCount === jumlahSP) {
                     html5QrcodeScanner.clear(); // Stop scanning
                     alert("Semua QR Code telah di-scan.");
                 }
@@ -232,20 +220,6 @@
             "qrReader", { fps: 10, qrbox: 250 }
         );
         html5QrcodeScanner.render(onScanSuccess);
-    }
-
-    function validateForm() {
-        const idOutlet = document.getElementById("idOutlet").value;
-        const idOutletError = document.getElementById("idOutletError");
-
-        // Validasi ID Outlet
-        if (!idOutlet || idOutlet <= 0) {
-            idOutletError.style.display = "block";
-            return false; // Menghentikan pengiriman form
-        } else {
-            idOutletError.style.display = "none"; // Menyembunyikan pesan error
-        }
-        return true; // Melanjutkan pengiriman form
     }
 </script>
 
