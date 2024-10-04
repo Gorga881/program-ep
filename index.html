@@ -75,6 +75,13 @@
             margin-bottom: 5px;
         }
 
+        .error {
+            color: red;
+            font-size: 0.9em;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+
         @media (max-width: 600px) {
             .form-container {
                 padding: 10px;
@@ -90,7 +97,7 @@
 
 <div class="form-container">
     <h2>Formulir Pengisian Data</h2>
-    <form id="dynamicForm">
+    <form id="dynamicForm" onsubmit="return validateForm()">
         <!-- Pertanyaan 1: Micro Cluster -->
         <label for="microCluster">Micro Cluster:</label>
         <select id="microCluster" name="microCluster" onchange="updateCodeDSE()">
@@ -118,6 +125,7 @@
         <!-- Pertanyaan 3: ID Outlet -->
         <label for="idOutlet">ID Outlet:</label>
         <input type="number" id="idOutlet" name="idOutlet" min="1">
+        <div id="idOutletError" class="error" style="display: none;"></div>
 
         <!-- Pertanyaan 4: Jumlah SP -->
         <label for="jumlahSP">Jumlah SP:</label>
@@ -220,6 +228,21 @@
             "qrReader", { fps: 10, qrbox: 250 }
         );
         html5QrcodeScanner.render(onScanSuccess);
+    }
+
+    function validateForm() {
+        const idOutlet = document.getElementById("idOutlet").value;
+        const idOutletError = document.getElementById("idOutletError");
+        idOutletError.style.display = "none";
+
+        // Reset error state
+        if (idOutlet === "" || idOutlet < 1) {
+            idOutletError.textContent = "ID Outlet harus diisi dengan angka positif.";
+            idOutletError.style.display = "block";
+            return false; // Prevent form submission
+        }
+        
+        return true; // Allow form submission
     }
 </script>
 
