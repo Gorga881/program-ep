@@ -68,18 +68,12 @@
             width: 100%;
             height: 300px;
             margin-bottom: 20px;
+            display: none; /* Awalnya disembunyikan */
         }
 
         #spListContainer label {
             display: block;
             margin-bottom: 5px;
-        }
-
-        .error {
-            color: red;
-            font-size: 0.9em;
-            margin-top: -10px;
-            margin-bottom: 10px;
         }
 
         @media (max-width: 600px) {
@@ -90,6 +84,11 @@
             h2 {
                 font-size: 18px;
             }
+        }
+
+        .error {
+            color: red;
+            display: none; /* Awalnya disembunyikan */
         }
     </style>
 </head>
@@ -125,7 +124,7 @@
         <!-- Pertanyaan 3: ID Outlet -->
         <label for="idOutlet">ID Outlet:</label>
         <input type="number" id="idOutlet" name="idOutlet" min="1">
-        <div id="idOutletError" class="error" style="display: none;"></div>
+        <div class="error" id="idOutletError">ID Outlet harus diisi dengan angka positif.</div>
 
         <!-- Pertanyaan 4: Jumlah SP -->
         <label for="jumlahSP">Jumlah SP:</label>
@@ -151,7 +150,7 @@
             <div id="spList"></div>
         </div>
 
-        <div id="qrReader" style="display:none;"></div>
+        <div id="qrReader"></div>
         <button type="button" onclick="startScan()">Mulai Scan QR Code</button>
 
         <button type="submit">Submit</button>
@@ -206,11 +205,16 @@
             spList.appendChild(input);
             spList.appendChild(document.createElement("br"));
         }
-        document.getElementById("qrReader").style.display = "block";
+        document.getElementById("qrReader").style.display = "block"; // Tampilkan area QR Reader
     }
 
     function startScan() {
         const jumlahSP = parseInt(document.getElementById("jumlahSP").value);
+        if (jumlahSP <= 0) {
+            alert("Pilih jumlah SP terlebih dahulu.");
+            return;
+        }
+        
         let scanCount = 1;
 
         function onScanSuccess(decodedText, decodedResult) {
@@ -233,16 +237,15 @@
     function validateForm() {
         const idOutlet = document.getElementById("idOutlet").value;
         const idOutletError = document.getElementById("idOutletError");
-        idOutletError.style.display = "none";
 
-        // Reset error state
-        if (idOutlet === "" || idOutlet < 1) {
-            idOutletError.textContent = "ID Outlet harus diisi dengan angka positif.";
+        // Validasi ID Outlet
+        if (!idOutlet || idOutlet <= 0) {
             idOutletError.style.display = "block";
-            return false; // Prevent form submission
+            return false; // Menghentikan pengiriman form
+        } else {
+            idOutletError.style.display = "none"; // Menyembunyikan pesan error
         }
-        
-        return true; // Allow form submission
+        return true; // Melanjutkan pengiriman form
     }
 </script>
 
