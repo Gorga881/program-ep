@@ -144,7 +144,7 @@
         </div>
 
         <div id="qrReader" style="display:none;"></div>
-        <button type="button" onclick="startScan()">Mulai Scan QR Code</button>
+        <button type="button" id="startScanButton" onclick="startScan()">Mulai Scan QR Code</button>
 
         <button type="submit">Submit</button>
     </form>
@@ -160,7 +160,7 @@
         "MC-BATULICIN": ["CSOB-BTL04", "CSOB-BTL2", "CSOB-BTL7", "CSOB-BTL8", "JUMADINFARHAN02", "RUSDIANSYAHBTL"],
         "MC-PELAIHARI": ["ANWARI", "CSOB-BTL5", "EXP-BJB02", "MC-PLH1", "MURNIMUSTAFA1", "REZASATRIAHARDI"],
         "MC-KAPUAS": ["ALFIKPS", "HERMANKPS1", "HERYKPS", "KPS01", "KPS02", "KPS03", "SUWANDIKPS1"],
-        "MC-MUARA TEWEH": ["PKY01", "TEWEH-AVANDI", "TEWEH-HUSAINI", "TEWEH-IJLANNAIS", "TEWEH-MURNI", "TEWEH-RUDIYANI", "TEWH-PAJRIANSYAH", "TWH02"],
+        "MC-MUARA TEWEH": ["PKY01", "TEWEH-AVANDI", "TEWEH-HUSAINI", "TEWEH-IJLANNAIS", "TEWEH-MURNI", "TEWEH-RUDIYANI", "TWH02"],
         "MC-PALANGKARAYA": ["PLK-CSO01", "PLK-DAVID", "PLK-EDYLESMANA", "PLK-ISMAJAYA", "PLK-RAFIAL", "PLK-RENO", "PLK-RISKYNOVA", "PLK-RIZALI", "PLK-SURIYANI"],
         "MC-BERAU": ["ANGGIKHARISMA", "ARDIPRATAMA", "CSO-BERAU01", "DEDIALFIAN1", "JHODYSYAHARUDDIN"],
         "MC-TARAKAN": ["CSO-TARAKAN-03", "TRK-BUDI", "TRK-NURSALAM", "TRK-TEGUH"]
@@ -216,10 +216,15 @@
             }
         }
 
-        const html5QrcodeScanner = new Html5QrcodeScanner(
-            "qrReader", { fps: 10, qrbox: 250 }
-        );
-        html5QrcodeScanner.render(onScanSuccess);
+        const html5QrcodeScanner = new Html5Qrcode("qrReader");
+        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+        html5QrcodeScanner.start(
+            { facingMode: "environment" }, config, onScanSuccess)
+            .catch(err => {
+                console.error("Kesalahan dalam memulai pemindaian: ", err);
+                alert("Gagal membuka kamera. Pastikan izin kamera diberikan.");
+            });
     }
 </script>
 
