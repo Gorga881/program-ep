@@ -85,6 +85,11 @@
             background-color: #218838; /* Darker green */
         }
 
+        .sp-list {
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
         @media (max-width: 600px) {
             .form-container {
                 padding: 10px;
@@ -118,7 +123,7 @@
             <option value="MC-TARAKAN">MC-TARAKAN</option>
         </select>
 
-        <label for="codeDSE">Code DSE (ID Mobii):</label>
+        <label for="codeDSE">Code DSE (ID Mobil):</label>
         <select id="codeDSE" name="codeDSE">
             <option value="">-- Pilih Code DSE --</option>
         </select>
@@ -132,22 +137,14 @@
         </select>
 
         <label for="jenisSP">Jenis SP:</label>
-        <select id="jenisSP" name="jenisSP">
-            <option value="SP IM3 GB">SP IM3 3GB</option>
+        <select id="jenisSP" name="jenisSP" onchange="updateSPList()">
+            <option value="SP IM3 3GB">SP IM3 3GB</option>
             <option value="SP IM3 6GB">SP IM3 6GB</option>
             <option value="SP IM3 9GB">SP IM3 9GB</option>
         </select>
 
-        <label>List SP:</label>
-        <div id="spListContainer">
-            ${Array.from({length: 10}).map((_, index) => `
-                <div class="qr-container">
-                    <select name="spList" id="spList${index}">
-                        <option value="">-- Pilih SP --</option>
-                    </select>
-                    <button type="button" class="qr-button" onclick="scanQRCode(${index})">Scan QR</button>
-                </div>
-            `).join('')}
+        <div class="sp-list" id="spListContainer">
+            <!-- SP items will be dynamically populated here -->
         </div>
 
         <button type="submit">Submit</button>
@@ -170,6 +167,12 @@
         "MC-TARAKAN": ["CSO-TARAKAN-03", "TRK-BUDI", "TRK-NURSALAM", "TRK-TEGUH"]
     };
 
+    const spOptions = {
+        "SP IM3 3GB": ["SP A", "SP B", "SP C", "SP D", "SP E", "SP F", "SP G", "SP H", "SP I", "SP J"],
+        "SP IM3 6GB": ["SP K", "SP L", "SP M", "SP N", "SP O", "SP P", "SP Q", "SP R", "SP S", "SP T"],
+        "SP IM3 9GB": ["SP U", "SP V", "SP W", "SP X", "SP Y", "SP Z", "SP AA", "SP AB", "SP AC", "SP AD"]
+    };
+
     function updateCodeDSE() {
         const microCluster = document.getElementById('microCluster').value;
         const codeDSESelect = document.getElementById('codeDSE');
@@ -182,12 +185,29 @@
         }
     }
 
+    function updateSPList() {
+        const jenisSP = document.getElementById('jenisSP').value;
+        const spListContainer = document.getElementById('spListContainer');
+        spListContainer.innerHTML = ''; // Clear previous SP list
+
+        if (spOptions[jenisSP]) {
+            spOptions[jenisSP].forEach((sp, index) => {
+                spListContainer.innerHTML += `
+                    <div class="qr-container">
+                        <span id="spList${index}">${sp} : </span>
+                        <button class="qr-button" onclick="scanQRCode(${index})">Scan QR</button>
+                    </div>
+                `;
+            });
+        }
+    }
+
     function scanQRCode(index) {
         const html5QrCode = new Html5Qrcode("qr-reader");
-        
+
         html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 })
             .then((decodedText) => {
-                document.getElementById(`spList${index}`).value = decodedText; // Fill the dropdown with QR code value
+                document.getElementById(`spList${index}`).innerText = `${decodedText}`; // Fill the paragraph with QR code value
                 html5QrCode.stop();
             })
             .catch((err) => {
@@ -200,6 +220,9 @@
         event.preventDefault();
         alert("Form submitted!");
     });
+
+    // Initialize SP list on page load
+    updateSPList();
 </script>
 
 </body>
