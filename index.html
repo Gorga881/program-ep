@@ -8,7 +8,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #b3d9ff; /* Latar biru muda */
+            background-color: #b3d9ff; /* Light blue background */
             margin: 0;
             padding: 0;
             display: flex;
@@ -27,7 +27,7 @@
         }
 
         h2 {
-            background-color: #003366; /* Biru gelap */
+            background-color: #003366; /* Dark blue */
             color: white;
             padding: 10px;
             text-align: center;
@@ -38,13 +38,14 @@
 
         label {
             font-weight: bold;
+            display: block;
+            margin: 10px 0 5px;
         }
 
         input, select {
             width: 100%;
             padding: 10px;
-            margin-top: 5px;
-            margin-bottom: 10px; /* Mengurangi jarak bawah */
+            margin-bottom: 15px;
             border-radius: 5px;
             border: 1px solid #ccc;
         }
@@ -52,27 +53,36 @@
         button {
             width: 100%;
             padding: 10px;
-            background-color: #003366; /* Biru gelap */
+            background-color: #003366; /* Dark blue */
             color: white;
             border: none;
             border-radius: 5px;
             font-weight: bold;
             cursor: pointer;
-            margin-bottom: 10px; /* Tambahkan jarak bawah untuk tombol scan */
         }
 
         button:hover {
-            background-color: #0052cc; /* Biru yang sedikit lebih terang */
+            background-color: #0052cc; /* Slightly lighter blue */
         }
 
         .qr-container {
             display: flex;
-            align-items: center; /* Agar tombol dan dropdown sejajar */
-            margin-bottom: 10px; /* Mengurangi jarak bawah */
+            align-items: center;
+            margin: 5px 0;
         }
 
         .qr-button {
-            margin-left: 10px; /* Jarak antara dropdown dan tombol scan */
+            margin-left: 10px;
+            background-color: #28a745; /* Green */
+            border: none;
+            color: white;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .qr-button:hover {
+            background-color: #218838; /* Darker green */
         }
 
         @media (max-width: 600px) {
@@ -91,7 +101,6 @@
 <div class="form-container">
     <h2>Formulir Pengisian Data</h2>
     <form id="dynamicForm">
-        <!-- Pertanyaan 1: Micro Cluster -->
         <label for="microCluster">Micro Cluster:</label>
         <select id="microCluster" name="microCluster" onchange="updateCodeDSE()">
             <option value="">-- Pilih Micro Cluster --</option>
@@ -109,23 +118,19 @@
             <option value="MC-TARAKAN">MC-TARAKAN</option>
         </select>
 
-        <!-- Pertanyaan 2: Code DSE -->
         <label for="codeDSE">Code DSE (ID Mobii):</label>
         <select id="codeDSE" name="codeDSE">
             <option value="">-- Pilih Code DSE --</option>
         </select>
 
-        <!-- Pertanyaan 3: ID Outlet -->
         <label for="idOutlet">ID Outlet:</label>
         <input type="number" id="idOutlet" name="idOutlet" min="1" required>
 
-        <!-- Pertanyaan 4: Jumlah SP -->
         <label for="jumlahSP">Jumlah SP:</label>
         <select id="jumlahSP" name="jumlahSP">
-            <option value="10">10</option> <!-- Hanya 1 pilihan -->
+            <option value="10">10</option> <!-- Only 1 choice -->
         </select>
 
-        <!-- Pertanyaan 5: Jenis SP -->
         <label for="jenisSP">Jenis SP:</label>
         <select id="jenisSP" name="jenisSP">
             <option value="SP IM3 GB">SP IM3 3GB</option>
@@ -133,19 +138,14 @@
             <option value="SP IM3 9GB">SP IM3 9GB</option>
         </select>
 
-        <!-- Pertanyaan 6: List SP -->
-        <label for="listSP">List SP:</label>
-        <div id="spList">
-            <!-- Tambahkan 10 dropdown dengan tombol scan QR di sini -->
+        <label>List SP:</label>
+        <div id="spListContainer">
             ${Array.from({length: 10}).map((_, index) => `
                 <div class="qr-container">
-                    <select name="spDropdown${index + 1}" id="spDropdown${index + 1}">
-                        <option value="">-- Pilih SP ${index + 1} --</option>
-                        <option value="SP A">SP A</option>
-                        <option value="SP B">SP B</option>
-                        <option value="SP C">SP C</option>
+                    <select name="spList" id="spList${index}">
+                        <option value="">-- Pilih SP --</option>
                     </select>
-                    <button type="button" class="qr-button" onclick="scanQRCode(${index + 1})">Scan QR</button>
+                    <button type="button" class="qr-button" onclick="scanQRCode(${index})">Scan QR</button>
                 </div>
             `).join('')}
         </div>
@@ -171,30 +171,35 @@
     };
 
     function updateCodeDSE() {
-        const microClusterSelect = document.getElementById("microCluster");
-        const codeDSESelect = document.getElementById("codeDSE");
+        const microCluster = document.getElementById('microCluster').value;
+        const codeDSESelect = document.getElementById('codeDSE');
+        codeDSESelect.innerHTML = '<option value="">-- Pilih Code DSE --</option>'; // Reset options
 
-        // Kosongkan opsi yang ada sebelumnya
-        codeDSESelect.innerHTML = '<option value="">-- Pilih Code DSE --</option>';
-
-        const selectedCluster = microClusterSelect.value;
-
-        // Cek apakah ada opsi untuk Micro Cluster yang dipilih
-        if (dseOptions[selectedCluster]) {
-            dseOptions[selectedCluster].forEach(code => {
-                const option = document.createElement("option");
-                option.value = code;
-                option.textContent = code;
-                codeDSESelect.appendChild(option);
+        if (dseOptions[microCluster]) {
+            dseOptions[microCluster].forEach(function(option) {
+                codeDSESelect.innerHTML += `<option value="${option}">${option}</option>`;
             });
         }
     }
 
     function scanQRCode(index) {
-        // Logika untuk scanning QR code
-        console.log("Scanning QR Code for SP " + index);
-        // Anda bisa menambahkan logika untuk memanggil fungsi scan QR di sini
+        const html5QrCode = new Html5Qrcode("qr-reader");
+        
+        html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 })
+            .then((decodedText) => {
+                document.getElementById(`spList${index}`).value = decodedText; // Fill the dropdown with QR code value
+                html5QrCode.stop();
+            })
+            .catch((err) => {
+                console.error(err);
+                alert("Scanning failed, please try again.");
+            });
     }
+
+    document.getElementById("dynamicForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        alert("Form submitted!");
+    });
 </script>
 
 </body>
