@@ -1,122 +1,80 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form Potongan Harga</title>
+    <title>Formulir Pengisian Data</title>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            max-width: 600px;
-            background-color: #f9f9f9;
+        }
+        .form-group {
+            margin-bottom: 15px;
         }
         label {
-            margin-top: 10px;
             display: block;
+            margin-bottom: 5px;
         }
-        select, input[type="submit"], input[type="text"] {
-            margin-top: 5px;
-            width: 100%;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        input[type="submit"] {
-            background-color: #28a745;
-            color: white;
-            cursor: pointer;
-        }
-        input[type="submit"]:hover {
-            background-color: #218838;
-        }
-        .barcode-scanner {
-            margin-top: 10px;
-        }
-        #interactive {
-            width: 100%;
-            height: 200px;
-            border: 1px solid #ccc;
-            margin-top: 10px;
+        .sp-container {
+            margin-top: 20px;
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
 </head>
 <body>
-    <h1>Form Pemilihan Micro Cluster dan Code DSE</h1>
 
-    <form id="dynamicForm">
+    <h2>Formulir Pengisian Data</h2>
+
+    <div class="form-group">
         <label for="microCluster">Micro Cluster:</label>
-        <select id="microCluster" name="microCluster" onchange="updateCodeDSE()">
-            <option value="">-- Pilih Micro Cluster --</option>
+        <select id="microCluster">
+            <option value="MC-MUARA TEWEH">MC-MUARA TEWEH</option>
             <option value="MC-BANJARBARU">MC-BANJARBARU</option>
             <option value="MC-BARABAI">MC-BARABAI</option>
             <option value="MC-KANDANGAN">MC-KANDANGAN</option>
             <option value="MC-BANJARMASIN">MC-BANJARMASIN</option>
-            <option value="MC-BARITO KUALA">MC-BARITO KUALA</option>
-            <option value="MC-BATULICIN">MC-BATULICIN</option>
-            <option value="MC-PELAIHARI">MC-PELAIHARI</option>
-            <option value="MC-KAPUAS">MC-KAPUAS</option>
-            <option value="MC-MUARA TEWEH">MC-MUARA TEWEH</option>
-            <option value="MC-PALANGKARAYA">MC-PALANGKARAYA</option>
-            <option value="MC-BERAU">MC-BERAU</option>
-            <option value="MC-TARAKAN">MC-TARAKAN</option>
+            <!-- Tambahkan pilihan lain sesuai kebutuhan -->
         </select>
+    </div>
 
+    <div class="form-group">
         <label for="codeDSE">Code DSE (ID Mobil):</label>
-        <select id="codeDSE" name="codeDSE">
-            <option value="">-- Pilih Code DSE --</option>
+        <input type="text" id="codeDSE" placeholder="TEWEH-HUSAINI">
+    </div>
+
+    <div class="form-group">
+        <label for="idOutlet">ID Outlet:</label>
+        <input type="text" id="idOutlet" placeholder="1756094">
+    </div>
+
+    <div class="form-group">
+        <label for="jumlahSP">Jumlah SP:</label>
+        <input type="number" id="jumlahSP" placeholder="10">
+    </div>
+
+    <div class="form-group">
+        <label for="jenisSP">Jenis SP:</label>
+        <select id="jenisSP">
+            <option value="SP IM3 3GB">SP IM3 3GB</option>
+            <option value="SP XL 5GB">SP XL 5GB</option>
+            <!-- Tambahkan pilihan lain sesuai kebutuhan -->
         </select>
+    </div>
 
+    <div class="form-group">
         <label for="fileUpload">Upload File Excel:</label>
-        <input type="file" id="fileUpload" accept=".xls,.xlsx">
+        <input type="file" id="fileUpload" accept=".xlsx, .xls">
+    </div>
 
-        <div id="spListContainer"></div>
-        <button type="submit">Submit</button>
-    </form>
+    <div class="sp-container" id="spListContainer">
+        <h3>List SP:</h3>
+        <div id="spList"></div>
+    </div>
+
+    <button id="submitBtn">Submit</button>
 
     <script>
-        // Peta data untuk ID Outlet berdasarkan Micro Cluster
-        const idMobils = {
-            "MC-BANJARBARU": ["CSOMCMTP1", "CSOMCMTP11", "CSOMCMTP2", "CSOMCMTP4", "CSOMCMTP5", "CSOMCMTP6"],
-            "MC-BARABAI": ["CSOMCBRB1", "CSOMCBRB2", "CSOMCBRB3", "CSOMCBRB4", "CSOMCTJG5"],
-            "MC-KANDANGAN": ["CSOMCBRB10", "CSOMCBRB5", "CSOMCBRB7", "CSOMCBRB8", "CSOMCBRB9"],
-            "MC-BANJARMASIN": ["BJMGADGETAYA", "CSOB-BJM06", "CSOB-BJM-07", "CSOB-BJM1", "CSOB-BJM2", "CSOB-BJM4", "CSOB-BJM5", "CSOB-MTP2", "EXP-BJB01", "MCBJMAGUSTSANI", "MCBJMARIESPRAS", "MCBJMBAHRUDIN", "MCBJMBAMBANG", "MCBJMHENDRY", "MTPABANGBAIM"],
-            "MC-BARITO KUALA": ["CSOB-BJM3", "MCBJMAHMAD", "MCBJMANWARIFUADI", "MCBJMBAKERAN", "MCBJMFAHRULRAZI"],
-            "MC-BATULICIN": ["CSOB-BTL04", "CSOB-BTL2", "CSOB-BTL7", "CSOB-BTL8", "JUMADINFARHAN02", "RUSDIANSYAHBTL"],
-            "MC-PELAIHARI": ["ANWARI", "CSOB-BTL5", "EXP-BJB02", "MC-PLH1", "MURNIMUSTAFA1", "REZASATRIAHARDI"],
-            "MC-KAPUAS": ["ALFIKPS", "HERMANKPS1", "HERYKPS", "KPS01", "KPS02", "KPS03", "SUWANDIKPS1"],
-            "MC-MUARA TEWEH": ["PKY01", "TEWEH-AVANDI", "TEWEH-HUSAINI", "TEWEH-IJLANNAIS", "TEWEH-MURNI", "TEWEH-RUDIYANI", "TEWH-PAJRIANSYAH", "TWH02"],
-            "MC-PALANGKARAYA": ["PLK-CSO01", "PLK-DAVID", "PLK-EDYLESMANA", "PLK-ISMAJAYA", "PLK-RAFIAL", "PLK-RENO", "PLK-RISKYNOVA", "PLK-RIZALI", "PLK-SURIYANI"],
-            "MC-BERAU": ["ANGGIKHARISMA", "ARDIPRATAMA", "CSO-BERAU01", "DEDIALFIAN1", "JHODYSYAHARUDDIN"],
-            "MC-TARAKAN": ["CSO-TARAKAN-03", "TRK-BUDI", "TRK-NURSALAM", "TRK-TEGUH"]
-        };
-
-        // Event listener untuk mengupdate pilihan ID Outlet berdasarkan pilihan Micro Cluster
-        function updateCodeDSE() {
-            const microCluster = document.getElementById('microCluster').value;
-            const codeDSESelect = document.getElementById('codeDSE');
-            
-            // Mengosongkan dropdown ID Outlet
-            codeDSESelect.innerHTML = ''; 
-            const defaultOption = document.createElement('option');
-            defaultOption.text = '-- Pilih Code DSE --';
-            codeDSESelect.add(defaultOption);
-            
-            // Menambahkan opsi baru berdasarkan pilihan Micro Cluster
-            if (microCluster && idMobils[microCluster]) {
-                idMobils[microCluster].forEach((mob) => {
-                    const option = document.createElement('option');
-                    option.value = mob;
-                    option.text = mob;
-                    codeDSESelect.add(option);
-                });
-            }
-        }
-
         document.getElementById('fileUpload').addEventListener('change', handleFile);
 
         function handleFile(event) {
@@ -146,20 +104,16 @@
         }
 
         function displaySPList(spList) {
-            const spListContainer = document.getElementById('spListContainer');
+            const spListContainer = document.getElementById('spList');
             spListContainer.innerHTML = ''; // Mengosongkan sebelumnya
 
-            spList.forEach((sp) => {
-                const spItem = document.createElement('div');
-                spItem.textContent = sp; // Menampilkan SP
-                spListContainer.appendChild(spItem);
+            spList.forEach((sp, index) => {
+                const dropdown = document.createElement('select');
+                dropdown.innerHTML = `<option value="${sp}">${sp}</option>`;
+                spListContainer.appendChild(dropdown);
             });
         }
-
-        document.getElementById("dynamicForm").addEventListener("submit", function(event) {
-            event.preventDefault();
-            alert("Form submitted!");
-        });
     </script>
+
 </body>
 </html>
