@@ -15,7 +15,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            overflow-y: auto; /* Allow scrolling */
+            overflow-y: auto; /* Enable vertical scrolling */
         }
 
         .form-container {
@@ -25,6 +25,8 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             max-width: 600px;
             width: 100%;
+            height: auto; /* Adjust height for scrolling */
+            overflow-y: auto; /* Enable vertical scrolling inside container */
         }
 
         h2 {
@@ -88,7 +90,7 @@
     <h2>Formulir Pengisian Data</h2>
     <form id="dynamicForm">
         <label for="microCluster">Micro Cluster:</label>
-        <select id="microCluster" name="microCluster">
+        <select id="microCluster" name="microCluster" onchange="updateCodeDSE()">
             <option value="">-- Pilih Micro Cluster --</option>
             <option value="MC-BANJARBARU">MC-BANJARBARU</option>
             <option value="MC-BARABAI">MC-BARABAI</option>
@@ -118,7 +120,7 @@
         </select>
 
         <label for="jenisSP">Jenis SP:</label>
-        <select id="jenisSP" name="jenisSP">
+        <select id="jenisSP" name="jenisSP" onchange="updateSPList()">
             <option value="SP IM3 3GB">SP IM3 3GB</option>
             <option value="SP IM3 6GB">SP IM3 6GB</option>
             <option value="SP IM3 9GB">SP IM3 9GB</option>
@@ -135,22 +137,53 @@
     </form>
 </div>
 
+<script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
 <script>
-    const dseOptions = {
-        "MC-BANJARBARU": ["CSOMCMTP1", "CSOMCMTP11", "CSOMCMTP2", "CSOMCMTP4", "CSOMCMTP5", "CSOMCMTP6"],
-        "MC-BARABAI": ["CSOMCBRB1", "CSOMCBRB2", "CSOMCBRB3", "CSOMCBRB4", "CSOMCTJG5"],
-        "MC-KANDANGAN": ["CSOMCBRB10", "CSOMCBRB5", "CSOMCBRB7", "CSOMCBRB8", "CSOMCBRB9"],
-        "MC-BANJARMASIN": ["BJMGADGETAYA", "CSOB-BJM06", "CSOB-BJM-07", "CSOB-BJM1", "CSOB-BJM2", "CSOB-BJM4", "CSOB-BJM5", "CSOB-MTP2", "EXP-BJB01", "MCBJMAGUSTSANI", "MCBJMARIESPRAS", "MCBJMBAHRUDIN", "MCBJMBAMBANG", "MCBJMHENDRY", "MTPABANGBAIM"],
-        "MC-BARITO KUALA": ["CSOB-BJM3", "MCBJMAHMAD", "MCBJMANWARIFUADI", "MCBJMBAKERAN", "MCBJMFAHRULRAZI"],
-        "MC-BATULICIN": ["CSOB-BTL04", "CSOB-BTL2", "CSOB-BTL7", "CSOB-BTL8", "JUMADINFARHAN02", "RUSDIANSYAHBTL"],
-        "MC-PELAIHARI": ["ANWARI", "CSOB-BTL5", "EXP-BJB02", "MC-PLH1", "MURNIMUSTAFA1", "REZASATRIAHARDI"],
-        "MC-KAPUAS": ["ALFIKPS", "HERMANKPS1", "HERYKPS", "KPS01", "KPS02", "KPS03", "SUWANDIKPS1"],
-        "MC-MUARA TEWEH": ["PKY01", "TEWEH-AVANDI", "TEWEH-HUSAINI", "TEWEH-IJLANNAIS", "TEWEH-MURNI", "TEWEH-RUDIYANI", "TEWH-PAJRIANSYAH", "TWH02"],
-        "MC-PALANGKARAYA": ["PLK-CSO01", "PLK-DAVID", "PLK-EDYLESMANA", "PLK-ISMAJAYA", "PLK-RAFIAL", "PLK-RENO", "PLK-RISKYNOVA", "PLK-RIZALI", "PLK-SURIYANI"],
-        "MC-BERAU": ["ANGGIKHARISMA", "ARDIPRATAMA", "CSO-BERAU01", "DEDIALFIAN1", "JHODYSYAHARUDDIN"],
-        "MC-TARAKAN": ["CSO-TARAKAN-03", "TRK-BUDI", "TRK-NURSALAM", "TRK-TEGUH"]
-    };
+    document.getElementById('fileUpload').addEventListener('change', handleFile);
 
-    const spOptions = {
-        "SP IM3 3GB": ["SP A", "SP B", "SP C", "SP D", "SP E", "SP F", "SP G", "SP H", "SP I", "SP J"],
-        "SP IM3 6GB": ["SP K", "SP L", "SP M", "SP N
+    function handleFile(event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+
+            // Mengambil data dari kolom A (dari A2 kebawah)
+            const range = XLSX.utils.decode_range(worksheet['!ref']);
+            const spList = [];
+            for (let row = 2; row <= range.e.r; row++) { // mulai dari A2
+                const cellAddress = `A${row + 1}`; // karena Excel 1-based index
+                const cell = worksheet[cellAddress];
+                if (cell) {
+                    spList.push(cell.v); // ambil nilai dari sel
+                }
+            }
+
+            // Menampilkan SP List
+            displaySPList(spList);
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function displaySPList(spList) {
+        const spListContainer = document.getElementById('spListContainer');
+        spListContainer.innerHTML = ''; // Mengosongkan sebelumnya
+
+        spList.forEach((sp) => {
+            const spItem = document.createElement('div');
+            spItem.textContent = sp; // Menampilkan SP
+            spListContainer.appendChild(spItem);
+        });
+    }
+
+    document.getElementById("dynamicForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        alert("Form submitted!");
+    });
+
+</script>
+
+</body>
+</html>
