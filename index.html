@@ -8,7 +8,26 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
+            padding: 20px;
+            background-color: #add8e6; /* Warna latar biru muda */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Mengisi tinggi viewport */
+        }
+        .form-container {
+            background-color: #4682b4; /* Warna latar biru tua */
+            padding: 20px;
+            border-radius: 5px;
+            width: 100%;
+            max-width: 600px; /* Ukuran maksimum */
+            color: white; /* Warna tulisan putih */
+        }
+        h2 {
+            text-align: center;
+            margin: 0 0 20px 0;
+            font-weight: bold;
         }
         .form-group {
             margin-bottom: 15px;
@@ -20,62 +39,120 @@
         .sp-container {
             margin-top: 20px;
         }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #fff;
+            color: #4682b4; /* Warna tulisan tombol */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #e0e0e0; /* Warna latar saat hover */
+        }
     </style>
 </head>
 <body>
 
-    <h2>Formulir Pengisian Data</h2>
+    <div class="form-container">
+        <h2>Formulir Pengisian Data</h2>
 
-    <div class="form-group">
-        <label for="microCluster">Micro Cluster:</label>
-        <select id="microCluster">
-            <option value="MC-MUARA TEWEH">MC-MUARA TEWEH</option>
-            <option value="MC-BANJARBARU">MC-BANJARBARU</option>
-            <option value="MC-BARABAI">MC-BARABAI</option>
-            <option value="MC-KANDANGAN">MC-KANDANGAN</option>
-            <option value="MC-BANJARMASIN">MC-BANJARMASIN</option>
-            <!-- Tambahkan pilihan lain sesuai kebutuhan -->
-        </select>
+        <div class="form-group">
+            <label for="microCluster">Micro Cluster:</label>
+            <select id="microCluster">
+                <option value="">--Pilih Micro Cluster--</option>
+                <option value="MC-BANJARBARU">MC-BANJARBARU</option>
+                <option value="MC-BARABAI">MC-BARABAI</option>
+                <option value="MC-KANDANGAN">MC-KANDANGAN</option>
+                <option value="MC-BANJARMASIN">MC-BANJARMASIN</option>
+                <option value="MC-BARITO KUALA">MC-BARITO KUALA</option>
+                <option value="MC-BATULICIN">MC-BATULICIN</option>
+                <option value="MC-PELAIHARI">MC-PELAIHARI</option>
+                <option value="MC-KAPUAS">MC-KAPUAS</option>
+                <option value="MC-MUARA TEWEH">MC-MUARA TEWEH</option>
+                <option value="MC-PALANGKARAYA">MC-PALANGKARAYA</option>
+                <option value="MC-BERAU">MC-BERAU</option>
+                <option value="MC-TARAKAN">MC-TARAKAN</option>
+            </select>
+        </div>
+
+        <div class="form-group" id="codeDSEContainer">
+            <label for="codeDSE">Code DSE (ID Mobil):</label>
+            <select id="codeDSE">
+                <option value="">--Pilih ID DSE--</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="idOutlet">ID Outlet:</label>
+            <input type="number" id="idOutlet" placeholder="Masukkan ID Outlet (lebih dari 0)" min="1">
+        </div>
+
+        <div class="form-group">
+            <label for="jumlahSP">Jumlah SP:</label>
+            <select id="jumlahSP">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="40">40</option>
+                <option value="50">50</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="jenisSP">Jenis SP:</label>
+            <select id="jenisSP">
+                <option value="SP IM3 3GB">SP IM3 3GB</option>
+                <option value="SP IM3 6GB">SP IM3 6GB</option>
+                <option value="SP IM3 9GB">SP IM3 9GB</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="fileUpload">Upload File Excel:</label>
+            <input type="file" id="fileUpload" accept=".xlsx, .xls">
+        </div>
+
+        <div class="sp-container" id="spListContainer">
+            <h3>List SP:</h3>
+            <div id="spList"></div>
+        </div>
+
+        <button id="submitBtn">Submit</button>
     </div>
-
-    <div class="form-group">
-        <label for="codeDSE">Code DSE (ID Mobil):</label>
-        <input type="text" id="codeDSE" placeholder="TEWEH-HUSAINI">
-    </div>
-
-    <div class="form-group">
-        <label for="idOutlet">ID Outlet:</label>
-        <input type="text" id="idOutlet" placeholder="1756094">
-    </div>
-
-    <div class="form-group">
-        <label for="jumlahSP">Jumlah SP:</label>
-        <input type="number" id="jumlahSP" placeholder="10">
-    </div>
-
-    <div class="form-group">
-        <label for="jenisSP">Jenis SP:</label>
-        <select id="jenisSP">
-            <option value="SP IM3 3GB">SP IM3 3GB</option>
-            <option value="SP XL 5GB">SP XL 5GB</option>
-            <!-- Tambahkan pilihan lain sesuai kebutuhan -->
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label for="fileUpload">Upload File Excel:</label>
-        <input type="file" id="fileUpload" accept=".xlsx, .xls">
-    </div>
-
-    <div class="sp-container" id="spListContainer">
-        <h3>List SP:</h3>
-        <div id="spList"></div>
-    </div>
-
-    <button id="submitBtn">Submit</button>
 
     <script>
+        document.getElementById('microCluster').addEventListener('change', updateCodeDSE);
         document.getElementById('fileUpload').addEventListener('change', handleFile);
+
+        const codeDSEOptions = {
+            "MC-BANJARBARU": ["CSOMCMTP1", "CSOMCMTP11", "CSOMCMTP2", "CSOMCMTP4", "CSOMCMTP5", "CSOMCMTP6"],
+            "MC-BARABAI": ["CSOMCBRB1", "CSOMCBRB2", "CSOMCBRB3", "CSOMCBRB4", "CSOMCTJG5"],
+            "MC-KANDANGAN": ["CSOMCBRB10", "CSOMCBRB5", "CSOMCBRB7", "CSOMCBRB8", "CSOMCBRB9"],
+            "MC-BANJARMASIN": ["BJMGADGETAYA", "CSOB-BJM06", "CSOB-BJM-07", "CSOB-BJM1", "CSOB-BJM2", "CSOB-BJM4", "CSOB-BJM5", "CSOB-MTP2", "EXP-BJB01", "MCBJMAGUSTSANI", "MCBJMARIESPRAS", "MCBJMBAHRUDIN", "MCBJMBAMBANG", "MCBJMHENDRY", "MTPABANGBAIM"],
+            "MC-BARITO KUALA": ["CSOB-BJM3", "MCBJMAHMAD", "MCBJMANWARIFUADI", "MCBJMBAKERAN", "MCBJMFAHRULRAZI"],
+            "MC-BATULICIN": ["CSOB-BTL04", "CSOB-BTL2", "CSOB-BTL7", "CSOB-BTL8", "JUMADINFARHAN02", "RUSDIANSYAHBTL"],
+            "MC-PELAIHARI": ["ANWARI", "CSOB-BTL5", "EXP-BJB02", "MC-PLH1", "MURNIMUSTAFA1", "REZASATRIAHARDI"],
+            "MC-KAPUAS": ["ALFIKPS", "HERMANKPS1", "HERYKPS", "KPS01", "KPS02", "KPS03", "SUWANDIKPS1"],
+            "MC-MUARA TEWEH": ["PKY01", "TEWEH-AVANDI", "TEWEH-HUSAINI", "TEWEH-IJLANNAIS", "TEWEH-MURNI", "TEWEH-RUDIYANI", "TEWH-PAJRIANSYAH", "TWH02"],
+            "MC-PALANGKARAYA": ["PLK-CSO01", "PLK-DAVID", "PLK-EDYLESMANA", "PLK-ISMAJAYA", "PLK-RAFIAL", "PLK-RENO", "PLK-RISKYNOVA", "PLK-RIZALI", "PLK-SURIYANI"],
+            "MC-BERAU": ["ANGGIKHARISMA", "ARDIPRATAMA", "CSO-BERAU01", "DEDIALFIAN1", "JHODYSYAHARUDDIN"],
+            "MC-TARAKAN": ["CSO-TARAKAN-03", "TRK-BUDI", "TRK-NURSALAM", "TRK-TEGUH"]
+        };
+
+        function updateCodeDSE() {
+            const microCluster = document.getElementById('microCluster').value;
+            const codeDSE = document.getElementById('codeDSE');
+            codeDSE.innerHTML = ''; // Mengosongkan sebelumnya
+            codeDSEOptions[microCluster]?.forEach(option => {
+                const opt = document.createElement('option');
+                opt.value = option;
+                opt.textContent = option;
+                codeDSE.appendChild(opt);
+            });
+        }
 
         function handleFile(event) {
             const file = event.target.files[0];
@@ -107,7 +184,7 @@
             const spListContainer = document.getElementById('spList');
             spListContainer.innerHTML = ''; // Mengosongkan sebelumnya
 
-            spList.forEach((sp, index) => {
+            spList.forEach((sp) => {
                 const dropdown = document.createElement('select');
                 dropdown.innerHTML = `<option value="${sp}">${sp}</option>`;
                 spListContainer.appendChild(dropdown);
