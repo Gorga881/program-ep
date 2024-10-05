@@ -64,18 +64,6 @@
             background-color: #0052cc; /* Biru yang sedikit lebih terang */
         }
 
-        #qrReader {
-            width: 100%;
-            height: 300px;
-            margin-bottom: 20px;
-            display: none; /* Sembunyikan QR reader awalnya */
-        }
-
-        #spListContainer label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
         @media (max-width: 600px) {
             .form-container {
                 padding: 10px;
@@ -134,14 +122,6 @@
             <option value="SP IM3 9GB">SP IM3 9GB</option>
         </select>
 
-        <div id="spListContainer">
-            <label>List SP (Scan QR Code):</label>
-            <div id="spList"></div>
-        </div>
-
-        <div id="qrReader"></div>
-        <button type="button" onclick="startScan()">Mulai Scan QR Code</button>
-
         <button type="submit">Submit</button>
     </form>
 </div>
@@ -169,61 +149,6 @@
             });
         }
     }
-
-    function generateSPList() {
-        const spListContainer = document.getElementById("spList");
-        spListContainer.innerHTML = ""; // Kosongkan daftar sebelumnya
-
-        for (let i = 1; i <= 10; i++) { // Selalu generate 10 input
-            const label = document.createElement("label");
-            label.textContent = `SP ${i}:`;
-            const input = document.createElement("input");
-            input.type = "text";
-            input.id = `sp${i}`;
-            input.disabled = true; // Disabled until scanned
-            spListContainer.appendChild(label);
-            spListContainer.appendChild(input);
-        }
-    }
-
-    let scanCount = 0;
-    const totalScans = 10; // Maksimal 10 pemindaian
-    
-    function startScan() {
-        scanCount = 0; // Reset scan count
-        const qrReader = document.getElementById("qrReader");
-        qrReader.style.display = "block"; // Show QR reader
-
-        const html5QrCode = new Html5Qrcode("qrReader");
-        html5QrCode.start(
-            { facingMode: "environment" }, // Use the back camera
-            {
-                fps: 10, // Frame per second
-                qrbox: 250 // Size of the QR code box
-            },
-            (decodedText, decodedResult) => {
-                console.log(`Decoded text: ${decodedText}`, decodedResult);
-                document.getElementById(`sp${scanCount + 1}`).value = decodedText;
-                scanCount++;
-                if (scanCount >= totalScans) {
-                    html5QrCode.stop().then(() => {
-                        qrReader.style.display = "none"; // Hide QR reader after scans
-                        alert("Scanning selesai!");
-                    }).catch(err => {
-                        console.error("Error stopping the QR scanner", err);
-                    });
-                }
-            },
-            (errorMessage) => {
-                console.warn(`QR Code not detected: ${errorMessage}`);
-            })
-        .catch(err => {
-            console.error("Failed to start QR Code scanner", err);
-        });
-    }
-
-    // Panggil generateSPList() agar otomatis terbuat saat halaman dimuat
-    generateSPList();
 </script>
 
 </body>
