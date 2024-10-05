@@ -44,7 +44,7 @@
             width: 100%;
             padding: 10px;
             margin-top: 5px;
-            margin-bottom: 15px;
+            margin-bottom: 10px; /* Mengurangi jarak bawah */
             border-radius: 5px;
             border: 1px solid #ccc;
         }
@@ -58,10 +58,21 @@
             border-radius: 5px;
             font-weight: bold;
             cursor: pointer;
+            margin-bottom: 10px; /* Tambahkan jarak bawah untuk tombol scan */
         }
 
         button:hover {
             background-color: #0052cc; /* Biru yang sedikit lebih terang */
+        }
+
+        .qr-container {
+            display: flex;
+            align-items: center; /* Agar tombol dan dropdown sejajar */
+            margin-bottom: 10px; /* Mengurangi jarak bawah */
+        }
+
+        .qr-button {
+            margin-left: 10px; /* Jarak antara dropdown dan tombol scan */
         }
 
         @media (max-width: 600px) {
@@ -122,6 +133,23 @@
             <option value="SP IM3 9GB">SP IM3 9GB</option>
         </select>
 
+        <!-- Pertanyaan 6: List SP -->
+        <label for="listSP">List SP:</label>
+        <div id="spList">
+            <!-- Tambahkan 10 dropdown dengan tombol scan QR di sini -->
+            ${Array.from({length: 10}).map((_, index) => `
+                <div class="qr-container">
+                    <select name="spDropdown${index + 1}" id="spDropdown${index + 1}">
+                        <option value="">-- Pilih SP ${index + 1} --</option>
+                        <option value="SP A">SP A</option>
+                        <option value="SP B">SP B</option>
+                        <option value="SP C">SP C</option>
+                    </select>
+                    <button type="button" class="qr-button" onclick="scanQRCode(${index + 1})">Scan QR</button>
+                </div>
+            `).join('')}
+        </div>
+
         <button type="submit">Submit</button>
     </form>
 </div>
@@ -131,23 +159,41 @@
         "MC-BANJARBARU": ["CSOMCMTP1", "CSOMCMTP11", "CSOMCMTP2", "CSOMCMTP4", "CSOMCMTP5", "CSOMCMTP6"],
         "MC-BARABAI": ["CSOMCBRB1", "CSOMCBRB2", "CSOMCBRB3", "CSOMCBRB4", "CSOMCTJG5"],
         "MC-KANDANGAN": ["CSOMCBRB10", "CSOMCBRB5", "CSOMCBRB7", "CSOMCBRB8", "CSOMCBRB9"],
-        "MC-BANJARMASIN": ["BJMGADGETAYA", "CSOB-BJM06", "CSOB-BJM-07", "CSOB-BJM1", "CSOB-BJM2", "CSOB-BJM4", "CSOB-BJM5", "CSOB-MTP2", "EXP-BJB01", "MCBJMAGUSTSANI", "MCBJMARIESPRAS", "MCBJMBAHRUDIN", "MCBJMBAMBANG", "MCBJMHENDRY", "MTPABANGBAIM", "MTPBERDIKA", "MTPDIBUKAS", "MTPEKAS", "MTPSOMOS"]
+        "MC-BANJARMASIN": ["BJMGADGETAYA", "CSOB-BJM06", "CSOB-BJM-07", "CSOB-BJM1", "CSOB-BJM2", "CSOB-BJM4", "CSOB-BJM5", "CSOB-MTP2", "EXP-BJB01", "MCBJMAGUSTSANI", "MCBJMARIESPRAS", "MCBJMBAHRUDIN", "MCBJMBAMBANG", "MCBJMHENDRY", "MTPABANGBAIM"],
+        "MC-BARITO KUALA": ["CSOB-BJM3", "MCBJMAHMAD", "MCBJMANWARIFUADI", "MCBJMBAKERAN", "MCBJMFAHRULRAZI"],
+        "MC-BATULICIN": ["CSOB-BTL04", "CSOB-BTL2", "CSOB-BTL7", "CSOB-BTL8", "JUMADINFARHAN02", "RUSDIANSYAHBTL"],
+        "MC-PELAIHARI": ["ANWARI", "CSOB-BTL5", "EXP-BJB02", "MC-PLH1", "MURNIMUSTAFA1", "REZASATRIAHARDI"],
+        "MC-KAPUAS": ["ALFIKPS", "HERMANKPS1", "HERYKPS", "KPS01", "KPS02", "KPS03", "SUWANDIKPS1"],
+        "MC-MUARA TEWEH": ["PKY01", "TEWEH-AVANDI", "TEWEH-HUSAINI", "TEWEH-IJLANNAIS", "TEWEH-MURNI", "TEWEH-RUDIYANI", "TEWH-PAJRIANSYAH", "TWH02"],
+        "MC-PALANGKARAYA": ["PLK-CSO01", "PLK-DAVID", "PLK-EDYLESMANA", "PLK-ISMAJAYA", "PLK-RAFIAL", "PLK-RENO", "PLK-RISKYNOVA", "PLK-RIZALI", "PLK-SURIYANI"],
+        "MC-BERAU": ["ANGGIKHARISMA", "ARDIPRATAMA", "CSO-BERAU01", "DEDIALFIAN1", "JHODYSYAHARUDDIN"],
+        "MC-TARAKAN": ["CSO-TARAKAN-03", "TRK-BUDI", "TRK-NURSALAM", "TRK-TEGUH"]
     };
 
     function updateCodeDSE() {
         const microClusterSelect = document.getElementById("microCluster");
         const codeDSESelect = document.getElementById("codeDSE");
-        const selectedMC = microClusterSelect.value;
 
+        // Kosongkan opsi yang ada sebelumnya
         codeDSESelect.innerHTML = '<option value="">-- Pilih Code DSE --</option>';
-        if (selectedMC && dseOptions[selectedMC]) {
-            dseOptions[selectedMC].forEach(code => {
+
+        const selectedCluster = microClusterSelect.value;
+
+        // Cek apakah ada opsi untuk Micro Cluster yang dipilih
+        if (dseOptions[selectedCluster]) {
+            dseOptions[selectedCluster].forEach(code => {
                 const option = document.createElement("option");
                 option.value = code;
                 option.textContent = code;
                 codeDSESelect.appendChild(option);
             });
         }
+    }
+
+    function scanQRCode(index) {
+        // Logika untuk scanning QR code
+        console.log("Scanning QR Code for SP " + index);
+        // Anda bisa menambahkan logika untuk memanggil fungsi scan QR di sini
     }
 </script>
 
