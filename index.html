@@ -134,7 +134,6 @@
             <option value="SP IM3 9GB">SP IM3 9GB</option>
         </select>
 
-        <!-- Pertanyaan 6: List SP -->
         <div id="spListContainer">
             <label>List SP (Scan QR Code):</label>
             <div id="spList"></div>
@@ -153,7 +152,6 @@
         "MC-BARABAI": ["CSOMCBRB1", "CSOMCBRB2", "CSOMCBRB3", "CSOMCBRB4", "CSOMCTJG5"],
         "MC-KANDANGAN": ["CSOMCBRB10", "CSOMCBRB5", "CSOMCBRB7", "CSOMCBRB8", "CSOMCBRB9"],
         "MC-BANJARMASIN": ["BJMGADGETAYA", "CSOB-BJM06", "CSOB-BJM-07", "CSOB-BJM1", "CSOB-BJM2", "CSOB-BJM4", "CSOB-BJM5", "CSOB-MTP2", "EXP-BJB01", "MCBJMAGUSTSANI", "MCBJMARIESPRAS", "MCBJMBAHRUDIN", "MCBJMBAMBANG", "MCBJMHENDRY", "MTPABANGBAIM", "MTPBERDIKA", "MTPDIBUKAS", "MTPEKAS", "MTPSOMOS"]
-        // Tambahkan lebih banyak micro cluster dan code DSE sesuai kebutuhan
     };
 
     function updateCodeDSE() {
@@ -161,7 +159,6 @@
         const codeDSESelect = document.getElementById("codeDSE");
         const selectedMC = microClusterSelect.value;
 
-        // Kosongkan dan tambahkan option baru
         codeDSESelect.innerHTML = '<option value="">-- Pilih Code DSE --</option>';
         if (selectedMC && dseOptions[selectedMC]) {
             dseOptions[selectedMC].forEach(code => {
@@ -190,7 +187,7 @@
     }
 
     let scanCount = 0;
-    let totalScans = 10; // Tetap 10 karena jumlah SP sudah diatur tetap
+    const totalScans = 10; // Maksimal 10 pemindaian
     
     function startScan() {
         scanCount = 0; // Reset scan count
