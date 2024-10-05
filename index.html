@@ -122,12 +122,8 @@
 
         <!-- Pertanyaan 4: Jumlah SP -->
         <label for="jumlahSP">Jumlah SP:</label>
-        <select id="jumlahSP" name="jumlahSP" onchange="generateSPList()">
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="30">30</option>
-            <option value="40">40</option>
-            <option value="50">50</option>
+        <select id="jumlahSP" name="jumlahSP">
+            <option value="10">10</option> <!-- Hanya 1 pilihan -->
         </select>
 
         <!-- Pertanyaan 5: Jenis SP -->
@@ -178,11 +174,10 @@
     }
 
     function generateSPList() {
-        const jumlahSP = document.getElementById("jumlahSP").value;
         const spListContainer = document.getElementById("spList");
         spListContainer.innerHTML = ""; // Kosongkan daftar sebelumnya
 
-        for (let i = 1; i <= jumlahSP; i++) {
+        for (let i = 1; i <= 10; i++) { // Selalu generate 10 input
             const label = document.createElement("label");
             label.textContent = `SP ${i}:`;
             const input = document.createElement("input");
@@ -195,11 +190,9 @@
     }
 
     let scanCount = 0;
-    let totalScans = 0;
+    let totalScans = 10; // Tetap 10 karena jumlah SP sudah diatur tetap
     
     function startScan() {
-        const jumlahSP = document.getElementById("jumlahSP").value;
-        totalScans = parseInt(jumlahSP);
         scanCount = 0; // Reset scan count
         const qrReader = document.getElementById("qrReader");
         qrReader.style.display = "block"; // Show QR reader
@@ -231,6 +224,9 @@
             console.error("Failed to start QR Code scanner", err);
         });
     }
+
+    // Panggil generateSPList() agar otomatis terbuat saat halaman dimuat
+    generateSPList();
 </script>
 
 </body>
