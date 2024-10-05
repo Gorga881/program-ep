@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Program Potongan Harga</title>
-    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -15,6 +15,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            overflow-y: auto; /* Allow scrolling */
         }
 
         .form-container {
@@ -65,26 +66,6 @@
             background-color: #0052cc; /* Slightly lighter blue */
         }
 
-        .qr-container {
-            display: flex;
-            align-items: center;
-            margin: 5px 0;
-        }
-
-        .qr-button {
-            margin-left: 10px;
-            background-color: #28a745; /* Green */
-            border: none;
-            color: white;
-            border-radius: 5px;
-            padding: 5px 10px;
-            cursor: pointer;
-        }
-
-        .qr-button:hover {
-            background-color: #218838; /* Darker green */
-        }
-
         .sp-list {
             margin-top: 10px;
             line-height: 1.5;
@@ -107,7 +88,7 @@
     <h2>Formulir Pengisian Data</h2>
     <form id="dynamicForm">
         <label for="microCluster">Micro Cluster:</label>
-        <select id="microCluster" name="microCluster" onchange="updateCodeDSE()">
+        <select id="microCluster" name="microCluster">
             <option value="">-- Pilih Micro Cluster --</option>
             <option value="MC-BANJARBARU">MC-BANJARBARU</option>
             <option value="MC-BARABAI">MC-BARABAI</option>
@@ -137,11 +118,14 @@
         </select>
 
         <label for="jenisSP">Jenis SP:</label>
-        <select id="jenisSP" name="jenisSP" onchange="updateSPList()">
+        <select id="jenisSP" name="jenisSP">
             <option value="SP IM3 3GB">SP IM3 3GB</option>
             <option value="SP IM3 6GB">SP IM3 6GB</option>
             <option value="SP IM3 9GB">SP IM3 9GB</option>
         </select>
+
+        <label for="fileUpload">Upload File Excel:</label>
+        <input type="file" id="fileUpload" accept=".xlsx, .xls">
 
         <div class="sp-list" id="spListContainer">
             <!-- SP items will be dynamically populated here -->
@@ -169,61 +153,4 @@
 
     const spOptions = {
         "SP IM3 3GB": ["SP A", "SP B", "SP C", "SP D", "SP E", "SP F", "SP G", "SP H", "SP I", "SP J"],
-        "SP IM3 6GB": ["SP K", "SP L", "SP M", "SP N", "SP O", "SP P", "SP Q", "SP R", "SP S", "SP T"],
-        "SP IM3 9GB": ["SP U", "SP V", "SP W", "SP X", "SP Y", "SP Z", "SP AA", "SP AB", "SP AC", "SP AD"]
-    };
-
-    function updateCodeDSE() {
-        const microCluster = document.getElementById('microCluster').value;
-        const codeDSESelect = document.getElementById('codeDSE');
-        codeDSESelect.innerHTML = '<option value="">-- Pilih Code DSE --</option>'; // Reset options
-
-        if (dseOptions[microCluster]) {
-            dseOptions[microCluster].forEach(function(option) {
-                codeDSESelect.innerHTML += `<option value="${option}">${option}</option>`;
-            });
-        }
-    }
-
-    function updateSPList() {
-        const jenisSP = document.getElementById('jenisSP').value;
-        const spListContainer = document.getElementById('spListContainer');
-        spListContainer.innerHTML = ''; // Clear previous SP list
-
-        if (spOptions[jenisSP]) {
-            spOptions[jenisSP].forEach((sp, index) => {
-                spListContainer.innerHTML += `
-                    <div class="qr-container">
-                        <span id="spList${index}">${sp} : </span>
-                        <button class="qr-button" onclick="scanQRCode(${index})">Scan QR</button>
-                    </div>
-                `;
-            });
-        }
-    }
-
-    function scanQRCode(index) {
-        const html5QrCode = new Html5Qrcode("qr-reader");
-
-        html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 })
-            .then((decodedText) => {
-                document.getElementById(`spList${index}`).innerText = `${decodedText}`; // Fill the paragraph with QR code value
-                html5QrCode.stop();
-            })
-            .catch((err) => {
-                console.error(err);
-                alert("Scanning failed, please try again.");
-            });
-    }
-
-    document.getElementById("dynamicForm").addEventListener("submit", function(event) {
-        event.preventDefault();
-        alert("Form submitted!");
-    });
-
-    // Initialize SP list on page load
-    updateSPList();
-</script>
-
-</body>
-</html>
+        "SP IM3 6GB": ["SP K", "SP L", "SP M", "SP N
