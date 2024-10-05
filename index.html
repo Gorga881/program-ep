@@ -1,93 +1,33 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Program Potongan Harga</title>
-    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <title>Form dengan Dropdown Dinamis</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.2/xlsx.full.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #b3d9ff; /* Light blue background */
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow-y: auto; /* Enable vertical scrolling */
+            margin: 20px;
         }
-
-        .form-container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
-            width: 100%;
-            height: auto; /* Adjust height for scrolling */
-            overflow-y: auto; /* Enable vertical scrolling inside container */
-        }
-
-        h2 {
-            background-color: #003366; /* Dark blue */
-            color: white;
-            padding: 10px;
-            text-align: center;
-            border-radius: 10px 10px 0 0;
-            margin: -20px -20px 20px -20px;
-            font-weight: bold;
-        }
-
         label {
-            font-weight: bold;
             display: block;
-            margin: 10px 0 5px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #003366; /* Dark blue */
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #0052cc; /* Slightly lighter blue */
-        }
-
-        .sp-list {
             margin-top: 10px;
-            line-height: 1.5;
         }
-
-        @media (max-width: 600px) {
-            .form-container {
-                padding: 10px;
-            }
-
-            h2 {
-                font-size: 18px;
-            }
+        select {
+            margin-bottom: 20px;
+            padding: 5px;
+        }
+        #spListContainer {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
         }
     </style>
 </head>
 <body>
+    <h1>Form Pemilihan Micro Cluster dan Code DSE</h1>
 
-<div class="form-container">
-    <h2>Formulir Pengisian Data</h2>
     <form id="dynamicForm">
         <label for="microCluster">Micro Cluster:</label>
         <select id="microCluster" name="microCluster" onchange="updateCodeDSE()">
@@ -111,79 +51,95 @@
             <option value="">-- Pilih Code DSE --</option>
         </select>
 
-        <label for="idOutlet">ID Outlet:</label>
-        <input type="number" id="idOutlet" name="idOutlet" min="1" required>
-
-        <label for="jumlahSP">Jumlah SP:</label>
-        <select id="jumlahSP" name="jumlahSP">
-            <option value="10">10</option> <!-- Only 1 choice -->
-        </select>
-
-        <label for="jenisSP">Jenis SP:</label>
-        <select id="jenisSP" name="jenisSP" onchange="updateSPList()">
-            <option value="SP IM3 3GB">SP IM3 3GB</option>
-            <option value="SP IM3 6GB">SP IM3 6GB</option>
-            <option value="SP IM3 9GB">SP IM3 9GB</option>
-        </select>
-
         <label for="fileUpload">Upload File Excel:</label>
-        <input type="file" id="fileUpload" accept=".xlsx, .xls">
+        <input type="file" id="fileUpload" accept=".xls,.xlsx">
 
-        <div class="sp-list" id="spListContainer">
-            <!-- SP items will be dynamically populated here -->
-        </div>
-
+        <div id="spListContainer"></div>
         <button type="submit">Submit</button>
     </form>
-</div>
 
-<script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
-<script>
-    document.getElementById('fileUpload').addEventListener('change', handleFile);
-
-    function handleFile(event) {
-        const file = event.target.files[0];
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const firstSheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[firstSheetName];
-
-            // Mengambil data dari kolom A (dari A2 kebawah)
-            const range = XLSX.utils.decode_range(worksheet['!ref']);
-            const spList = [];
-            for (let row = 2; row <= range.e.r; row++) { // mulai dari A2
-                const cellAddress = `A${row + 1}`; // karena Excel 1-based index
-                const cell = worksheet[cellAddress];
-                if (cell) {
-                    spList.push(cell.v); // ambil nilai dari sel
-                }
-            }
-
-            // Menampilkan SP List
-            displaySPList(spList);
+    <script>
+        // Peta data untuk ID Outlet berdasarkan Micro Cluster
+        const idMobils = {
+            "MC-BANJARBARU": ["CSOMCMTP1", "CSOMCMTP11", "CSOMCMTP2", "CSOMCMTP4", "CSOMCMTP5", "CSOMCMTP6"],
+            "MC-BARABAI": ["CSOMCBRB1", "CSOMCBRB2", "CSOMCBRB3", "CSOMCBRB4", "CSOMCTJG5"],
+            "MC-KANDANGAN": ["CSOMCBRB10", "CSOMCBRB5", "CSOMCBRB7", "CSOMCBRB8", "CSOMCBRB9"],
+            "MC-BANJARMASIN": ["BJMGADGETAYA", "CSOB-BJM06", "CSOB-BJM-07", "CSOB-BJM1", "CSOB-BJM2", "CSOB-BJM4", "CSOB-BJM5", "CSOB-MTP2", "EXP-BJB01", "MCBJMAGUSTSANI", "MCBJMARIESPRAS", "MCBJMBAHRUDIN", "MCBJMBAMBANG", "MCBJMHENDRY", "MTPABANGBAIM"],
+            "MC-BARITO KUALA": ["CSOB-BJM3", "MCBJMAHMAD", "MCBJMANWARIFUADI", "MCBJMBAKERAN", "MCBJMFAHRULRAZI"],
+            "MC-BATULICIN": ["CSOB-BTL04", "CSOB-BTL2", "CSOB-BTL7", "CSOB-BTL8", "JUMADINFARHAN02", "RUSDIANSYAHBTL"],
+            "MC-PELAIHARI": ["ANWARI", "CSOB-BTL5", "EXP-BJB02", "MC-PLH1", "MURNIMUSTAFA1", "REZASATRIAHARDI"],
+            "MC-KAPUAS": ["ALFIKPS", "HERMANKPS1", "HERYKPS", "KPS01", "KPS02", "KPS03", "SUWANDIKPS1"],
+            "MC-MUARA TEWEH": ["PKY01", "TEWEH-AVANDI", "TEWEH-HUSAINI", "TEWEH-IJLANNAIS", "TEWEH-MURNI", "TEWEH-RUDIYANI", "TEWH-PAJRIANSYAH", "TWH02"],
+            "MC-PALANGKARAYA": ["PLK-CSO01", "PLK-DAVID", "PLK-EDYLESMANA", "PLK-ISMAJAYA", "PLK-RAFIAL", "PLK-RENO", "PLK-RISKYNOVA", "PLK-RIZALI", "PLK-SURIYANI"],
+            "MC-BERAU": ["ANGGIKHARISMA", "ARDIPRATAMA", "CSO-BERAU01", "DEDIALFIAN1", "JHODYSYAHARUDDIN"],
+            "MC-TARAKAN": ["CSO-TARAKAN-03", "TRK-BUDI", "TRK-NURSALAM", "TRK-TEGUH"]
         };
-        reader.readAsArrayBuffer(file);
-    }
 
-    function displaySPList(spList) {
-        const spListContainer = document.getElementById('spListContainer');
-        spListContainer.innerHTML = ''; // Mengosongkan sebelumnya
+        // Event listener untuk mengupdate pilihan ID Outlet berdasarkan pilihan Micro Cluster
+        function updateCodeDSE() {
+            const microCluster = document.getElementById('microCluster').value;
+            const codeDSESelect = document.getElementById('codeDSE');
+            
+            // Mengosongkan dropdown ID Outlet
+            codeDSESelect.innerHTML = ''; 
+            const defaultOption = document.createElement('option');
+            defaultOption.text = '-- Pilih Code DSE --';
+            codeDSESelect.add(defaultOption);
+            
+            // Menambahkan opsi baru berdasarkan pilihan Micro Cluster
+            if (microCluster && idMobils[microCluster]) {
+                idMobils[microCluster].forEach((mob) => {
+                    const option = document.createElement('option');
+                    option.value = mob;
+                    option.text = mob;
+                    codeDSESelect.add(option);
+                });
+            }
+        }
 
-        spList.forEach((sp) => {
-            const spItem = document.createElement('div');
-            spItem.textContent = sp; // Menampilkan SP
-            spListContainer.appendChild(spItem);
+        document.getElementById('fileUpload').addEventListener('change', handleFile);
+
+        function handleFile(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+
+                // Mengambil data dari kolom A (dari A2 kebawah)
+                const range = XLSX.utils.decode_range(worksheet['!ref']);
+                const spList = [];
+                for (let row = 2; row <= range.e.r; row++) { // mulai dari A2
+                    const cellAddress = `A${row + 1}`; // karena Excel 1-based index
+                    const cell = worksheet[cellAddress];
+                    if (cell) {
+                        spList.push(cell.v); // ambil nilai dari sel
+                    }
+                }
+
+                // Menampilkan SP List
+                displaySPList(spList);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function displaySPList(spList) {
+            const spListContainer = document.getElementById('spListContainer');
+            spListContainer.innerHTML = ''; // Mengosongkan sebelumnya
+
+            spList.forEach((sp) => {
+                const spItem = document.createElement('div');
+                spItem.textContent = sp; // Menampilkan SP
+                spListContainer.appendChild(spItem);
+            });
+        }
+
+        document.getElementById("dynamicForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            alert("Form submitted!");
         });
-    }
-
-    document.getElementById("dynamicForm").addEventListener("submit", function(event) {
-        event.preventDefault();
-        alert("Form submitted!");
-    });
-
-</script>
-
+    </script>
 </body>
 </html>
