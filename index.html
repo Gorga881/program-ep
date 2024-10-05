@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scan QR Code</title>
+    <title>Program Potongan Harga</title>
     <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
     <style>
         body {
@@ -40,7 +40,7 @@
             font-weight: bold;
         }
 
-        input {
+        input, select {
             width: 100%;
             padding: 10px;
             margin-top: 5px;
@@ -68,20 +68,12 @@
             width: 100%;
             height: 300px;
             margin-bottom: 20px;
+            display: none; /* Sembunyikan QR reader awalnya */
         }
 
-        .result-list {
-            margin-top: 20px;
-        }
-
-        .result-list label {
+        #spListContainer label {
             display: block;
             margin-bottom: 5px;
-        }
-
-        .result-list input {
-            display: block;
-            margin-bottom: 10px;
         }
 
         @media (max-width: 600px) {
@@ -98,69 +90,143 @@
 <body>
 
 <div class="form-container">
-    <h2>Scan QR Code</h2>
+    <h2>Formulir Pengisian Data</h2>
+    <form id="dynamicForm">
+        <!-- Pertanyaan 1: Micro Cluster -->
+        <label for="microCluster">Micro Cluster:</label>
+        <select id="microCluster" name="microCluster" onchange="updateCodeDSE()">
+            <option value="">-- Pilih Micro Cluster --</option>
+            <option value="MC-BANJARBARU">MC-BANJARBARU</option>
+            <option value="MC-BARABAI">MC-BARABAI</option>
+            <option value="MC-KANDANGAN">MC-KANDANGAN</option>
+            <option value="MC-BANJARMASIN">MC-BANJARMASIN</option>
+            <option value="MC-BARITO KUALA">MC-BARITO KUALA</option>
+            <option value="MC-BATULICIN">MC-BATULICIN</option>
+            <option value="MC-PELAIHARI">MC-PELAIHARI</option>
+            <option value="MC-KAPUAS">MC-KAPUAS</option>
+            <option value="MC-MUARA TEWEH">MC-MUARA TEWEH</option>
+            <option value="MC-PALANGKARAYA">MC-PALANGKARAYA</option>
+            <option value="MC-BERAU">MC-BERAU</option>
+            <option value="MC-TARAKAN">MC-TARAKAN</option>
+        </select>
 
-    <div id="qrReader"></div>
-    <button type="button" onclick="startScan()">Mulai Scan QR Code</button>
+        <!-- Pertanyaan 2: Code DSE -->
+        <label for="codeDSE">Code DSE (ID Mobii):</label>
+        <select id="codeDSE" name="codeDSE">
+            <option value="">-- Pilih Code DSE --</option>
+        </select>
 
-    <div class="result-list" id="spListContainer">
-        <!-- Daftar hasil scan akan ditampilkan di sini -->
-    </div>
+        <!-- Pertanyaan 3: ID Outlet -->
+        <label for="idOutlet">ID Outlet:</label>
+        <input type="number" id="idOutlet" name="idOutlet" min="1" required>
+
+        <!-- Pertanyaan 4: Jumlah SP -->
+        <label for="jumlahSP">Jumlah SP:</label>
+        <select id="jumlahSP" name="jumlahSP">
+            <option value="10">10</option> <!-- Hanya 1 pilihan -->
+        </select>
+
+        <!-- Pertanyaan 5: Jenis SP -->
+        <label for="jenisSP">Jenis SP:</label>
+        <select id="jenisSP" name="jenisSP">
+            <option value="SP IM3 GB">SP IM3 GB</option>
+            <option value="SP IM3 6GB">SP IM3 6GB</option>
+            <option value="SP IM3 9GB">SP IM3 9GB</option>
+        </select>
+
+        <!-- Pertanyaan 6: List SP -->
+        <div id="spListContainer">
+            <label>List SP (Scan QR Code):</label>
+            <div id="spList"></div>
+        </div>
+
+        <div id="qrReader"></div>
+        <button type="button" onclick="startScan()">Mulai Scan QR Code</button>
+
+        <button type="submit">Submit</button>
+    </form>
 </div>
 
 <script>
+    const dseOptions = {
+        "MC-BANJARBARU": ["CSOMCMTP1", "CSOMCMTP11", "CSOMCMTP2", "CSOMCMTP4", "CSOMCMTP5", "CSOMCMTP6"],
+        "MC-BARABAI": ["CSOMCBRB1", "CSOMCBRB2", "CSOMCBRB3", "CSOMCBRB4", "CSOMCTJG5"],
+        "MC-KANDANGAN": ["CSOMCBRB10", "CSOMCBRB5", "CSOMCBRB7", "CSOMCBRB8", "CSOMCBRB9"],
+        "MC-BANJARMASIN": ["BJMGADGETAYA", "CSOB-BJM06", "CSOB-BJM-07", "CSOB-BJM1", "CSOB-BJM2", "CSOB-BJM4", "CSOB-BJM5", "CSOB-MTP2", "EXP-BJB01", "MCBJMAGUSTSANI", "MCBJMARIESPRAS", "MCBJMBAHRUDIN", "MCBJMBAMBANG", "MCBJMHENDRY", "MTPABANGBAIM", "MTPBERDIKA", "MTPDIBUKAS", "MTPEKAS", "MTPSOMOS"]
+        // Tambahkan lebih banyak micro cluster dan code DSE sesuai kebutuhan
+    };
+
+    function updateCodeDSE() {
+        const microClusterSelect = document.getElementById("microCluster");
+        const codeDSESelect = document.getElementById("codeDSE");
+        const selectedMC = microClusterSelect.value;
+
+        // Kosongkan dan tambahkan option baru
+        codeDSESelect.innerHTML = '<option value="">-- Pilih Code DSE --</option>';
+        if (selectedMC && dseOptions[selectedMC]) {
+            dseOptions[selectedMC].forEach(code => {
+                const option = document.createElement("option");
+                option.value = code;
+                option.textContent = code;
+                codeDSESelect.appendChild(option);
+            });
+        }
+    }
+
+    function generateSPList() {
+        const spListContainer = document.getElementById("spList");
+        spListContainer.innerHTML = ""; // Kosongkan daftar sebelumnya
+
+        for (let i = 1; i <= 10; i++) { // Selalu generate 10 input
+            const label = document.createElement("label");
+            label.textContent = `SP ${i}:`;
+            const input = document.createElement("input");
+            input.type = "text";
+            input.id = `sp${i}`;
+            input.disabled = true; // Disabled until scanned
+            spListContainer.appendChild(label);
+            spListContainer.appendChild(input);
+        }
+    }
+
     let scanCount = 0;
-    let totalScans = 10; // Batas maksimal scan
-    let html5QrCode;
-
+    let totalScans = 10; // Tetap 10 karena jumlah SP sudah diatur tetap
+    
     function startScan() {
-        scanCount = 0; // Reset hitungan scan
+        scanCount = 0; // Reset scan count
         const qrReader = document.getElementById("qrReader");
-        qrReader.style.display = "block"; // Tampilkan QR reader
+        qrReader.style.display = "block"; // Show QR reader
 
-        html5QrCode = new Html5Qrcode("qrReader");
-
+        const html5QrCode = new Html5Qrcode("qrReader");
         html5QrCode.start(
-            { facingMode: "environment" }, // Gunakan kamera belakang
+            { facingMode: "environment" }, // Use the back camera
             {
                 fps: 10, // Frame per second
-                qrbox: 250 // Ukuran kotak QR
+                qrbox: 250 // Size of the QR code box
             },
             (decodedText, decodedResult) => {
+                console.log(`Decoded text: ${decodedText}`, decodedResult);
+                document.getElementById(`sp${scanCount + 1}`).value = decodedText;
                 scanCount++;
-                displayScanResult(scanCount, decodedText); // Tampilkan hasil scan
-                console.log(`Scan ke-${scanCount}: ${decodedText}`);
-
-                // Hentikan scanner setelah mencapai batas maksimal scan
                 if (scanCount >= totalScans) {
                     html5QrCode.stop().then(() => {
-                        qrReader.style.display = "none"; // Sembunyikan QR reader setelah selesai
-                        alert("Maksimal 10 scan tercapai. Proses selesai!");
+                        qrReader.style.display = "none"; // Hide QR reader after scans
+                        alert("Scanning selesai!");
                     }).catch(err => {
-                        console.error("Error menghentikan QR scanner", err);
+                        console.error("Error stopping the QR scanner", err);
                     });
                 }
             },
             (errorMessage) => {
-                console.warn(`QR Code tidak terdeteksi: ${errorMessage}`);
+                console.warn(`QR Code not detected: ${errorMessage}`);
             })
         .catch(err => {
-            console.error("Gagal memulai QR Code scanner", err);
+            console.error("Failed to start QR Code scanner", err);
         });
     }
 
-    // Fungsi untuk menampilkan hasil scan ke dalam daftar
-    function displayScanResult(scanNumber, scanData) {
-        const spListContainer = document.getElementById("spListContainer");
-        const label = document.createElement("label");
-        label.textContent = `Hasil Scan ${scanNumber}:`;
-        const input = document.createElement("input");
-        input.type = "text";
-        input.value = scanData;
-        input.disabled = true; // Disable input agar tidak bisa diubah
-        spListContainer.appendChild(label);
-        spListContainer.appendChild(input);
-    }
+    // Panggil generateSPList() agar otomatis terbuat saat halaman dimuat
+    generateSPList();
 </script>
 
 </body>
